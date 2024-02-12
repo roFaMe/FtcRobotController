@@ -18,16 +18,16 @@ public class Pipeline extends OpenCvPipeline {
     protected double rightavgfin;
     protected  Mat output = new Mat();
     protected Scalar rectColor = new Scalar(255, 255, 255);
-    protected enum Location {
+    public enum Location {
         LEFT,
         CENTER,
         RIGHT
     }
-    protected Location location;
-    protected  Location getLocation(){
-        return (Location) location;
+    public Location location;
+    public  Location getLocation(){
+        return  location;
     }
-    protected Pipeline (OpenCvCamera webcam, Telemetry telemetry){
+    public Pipeline(OpenCvCamera webcam, Telemetry telemetry){
         this.webcam = webcam;
         this.telemetry = telemetry;
     }

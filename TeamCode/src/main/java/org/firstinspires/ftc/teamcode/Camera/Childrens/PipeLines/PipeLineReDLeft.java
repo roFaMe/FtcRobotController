@@ -15,8 +15,6 @@ public class PipeLineReDLeft extends Pipeline {
                 this.telemetry = telemetry;
         }
 
-
-
         @Override
         public Mat processFrame(Mat input) {
 
@@ -55,6 +53,8 @@ public class PipeLineReDLeft extends Pipeline {
                 }else {
                     location = Location.RIGHT;
                 }
+                telemetry.addData("Локация", location);
+                telemetry.update();
                 return (YCbCr);
         }
 }

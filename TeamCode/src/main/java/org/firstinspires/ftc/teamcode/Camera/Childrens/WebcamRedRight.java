@@ -11,9 +11,11 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 
 @Autonomous(name = "CamRedRight", group="Auto")
 public class WebcamRedRight extends Webcam {
+
     @Override
     public void initCam(Telemetry telemetry, OpMode op) {
         this.op = op;
+        whatsAuto = "redRight";
         int cameraMonitorViewId = op.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         webcam.setPipeline(new PipelineReDRight(webcam, telemetry));

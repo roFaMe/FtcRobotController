@@ -19,9 +19,8 @@ public class TeleOP extends LinearOpMode{
     //Таймер
     Timer time = new Timer();
     //Железо
-    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm;
-    private Servo upDown, hook;
-
+    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, arm, EnBar;
+    private Servo upDown, hook, plane;
 
     //Переменные моторов
 
@@ -30,9 +29,10 @@ public class TeleOP extends LinearOpMode{
     private double last_moment_serv = 0.0, last_moment_switch = 0.0, last_moment_free = 0.0;
     private double moment_diff_serv, moment_diff_switch, moment_diff_free;
     private double a, turn, timesFUp, timesFHo;
+    double ho = 0.8;//захват
+    double pl = 0.45;//начальное положение
+    private double up = 0.4;
 
-    private double up = 0.63;//изначальное положение
-    private double ho = 0.8;//закрыть
     private ElapsedTime runtime = new ElapsedTime();
     File telescopeFile = AppUtil.getInstance().getSettingsFile("telescopeFile.txt"); //Файл с позицией телескопа
     //Гироскоп
@@ -46,11 +46,11 @@ public class TeleOP extends LinearOpMode{
         rightRear = hardwareMap.get(DcMotor.class, "rightRear");
         baraban = hardwareMap.get(DcMotor.class, "baraban");
         arm = hardwareMap.get(DcMotor.class, "arm");
-
         EnBar = hardwareMap.get(DcMotor.class, "EnBar");
 
         upDown = hardwareMap.get(Servo.class, "upDown");
         hook = hardwareMap.get(Servo.class, "hook");
+        plane = hardwareMap.get(Servo.class, "plane");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -59,7 +59,6 @@ public class TeleOP extends LinearOpMode{
         baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        EnBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -67,8 +66,8 @@ public class TeleOP extends LinearOpMode{
         rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         EnBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -76,8 +75,6 @@ public class TeleOP extends LinearOpMode{
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        EnBar.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
@@ -97,9 +94,6 @@ public class TeleOP extends LinearOpMode{
                     leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                    EnBar.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     while (!isStopRequested() & opModeIsActive()) {
 
@@ -107,9 +101,9 @@ public class TeleOP extends LinearOpMode{
 
 
                         //Коэффицент скорости робота
-                        if (gamepad1.right_trigger < 0.5) {
+                        if (gamepad1.left_trigger < 0.5) {
                             a = 0.5;
-                        } else if (gamepad1.right_trigger > 0.5) {
+                        } else if (gamepad1.left_trigger > 0.5) {
                             a = 5;
                         }
 
@@ -142,40 +136,39 @@ public class TeleOP extends LinearOpMode{
                         //ТЕЛЕСКОП
 
 
-                       baraban.setPower(-gamepad2.left_stick_y);
+        baraban.setPower(-gamepad2.left_stick_y);
+
+
 
 
                         //Серваки
-                        ///Сервак захвата
 
                         if (gamepad2.a && timesFHo == 0 && moment_diff_serv > 200) {
-                            ho = 0.57;//открытие
+                            ho = 0.5;
                             timesFHo = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
                         else if (gamepad2.a && timesFHo == 1 && moment_diff_serv > 200) {
-                            ho = 0.8;//закрытие
+                            ho = 0.8;
                             timesFHo = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
 
-                        ///Сервак захвата
-
-                        if (gamepad2.y&& moment_diff_serv > 200) {
-                            ho = 0.67;//открытие
+                        if (gamepad2.y && timesFHo == 0 && moment_diff_serv > 200) {
+                            ho = 0.65;
+                            timesFHo = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
-                        /////Сервак вверх-вниз
                         if (gamepad2.x && timesFUp == 0 && moment_diff_serv > 200) {
-                            up = 0.15;//поднял
+                            up = 0.4;
                             timesFUp = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
                         else if (gamepad2.x && timesFUp == 1 && moment_diff_serv > 200) {
-                            up = 0.63;//отпустил
+                            up = 0.75;
                             timesFUp = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
@@ -184,14 +177,16 @@ public class TeleOP extends LinearOpMode{
                         moment_diff_serv = runtime.milliseconds() - last_moment_serv;
                         moment_diff_switch = runtime.milliseconds() - last_moment_switch;
 
-                        ///Рука
                         if(gamepad2.left_bumper){
                             arm.setPower(1);
                         }else{arm.setPower(0);}
-
                         if(gamepad2.right_bumper){
                             arm.setPower(-1);
                         }else {arm.setPower(0);}
+
+                        if(gamepad2.back){
+                            pl = 0.15;
+                        }else{pl = 0.45;}
 
                     }
                 } catch (Exception e) {
@@ -227,17 +222,14 @@ public class TeleOP extends LinearOpMode{
 
             upDown.setPosition(up);
             hook.setPosition(ho);
-//            En3.setPower(lamp);
+            plane.setPosition(pl);
 
-            telemetry.addData("Энкодер слева спереди", leftFront.getCurrentPosition());
-            telemetry.addData("Энкодер справа спереди", rightFront.getCurrentPosition());
-            telemetry.addData("Энкодер слева сзади", leftRear.getCurrentPosition());
-            telemetry.addData("Энкодер справа сзади", rightRear.getCurrentPosition());
-            telemetry.addData("Энкодер барабана", EnBar.getCurrentPosition());
+            telemetry.addData("Энкодер барабана", -EnBar.getCurrentPosition());
             telemetry.addData("Гейм2 - X", gamepad2.x);
             telemetry.addData("Гейм2 - A", gamepad2.a);
             telemetry.addData("Вверх-вниз", upDown.getPosition());
             telemetry.addData("Крючок", hook.getPosition());
+            telemetry.addData("Самолёт", plane.getPosition());
             telemetry.update();
 
         }

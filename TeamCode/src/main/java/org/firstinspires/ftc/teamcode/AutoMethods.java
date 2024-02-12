@@ -49,7 +49,7 @@ public class AutoMethods extends LinearOpMode implements Direction{
     //Железо
 
     private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm;
-    private Servo upDown, hook;
+    public Servo upDown, hook;
     private int sleep = 350;
     public  enum  Direction{
         forward,
@@ -105,6 +105,14 @@ public class AutoMethods extends LinearOpMode implements Direction{
 
     }
 
+    public void hookOpen(){
+        hook.setPosition(0.55);
+    }
+    public void hookClose(){
+        hook.setPosition(0.8);
+    }
+
+
 /*    public void camStart(OpMode op) {
         try {
             this.op = op;
@@ -137,21 +145,61 @@ public class AutoMethods extends LinearOpMode implements Direction{
 //        }
 //
 //    }
-    public void drive ( OpMode op, double timeout) {
+    public void drive ( OpMode op, double timeout, String loc) {
         this.op = op;
 
         runtime.reset();
-
-        while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+        if(loc.equals(FORWARD)){
+            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
             leftFront.setPower(0.5);
             rightFront.setPower(0.5);
             leftRear.setPower(0.5);
             rightRear.setPower(0.5);
         }
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftRear.setPower(0);
-        rightRear.setPower(0);
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftRear.setPower(0);
+            rightRear.setPower(0);}
+
+        if(loc.equals(LEFT)){
+            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+                leftFront.setPower(-0.5);
+                rightFront.setPower(0.5);
+                leftRear.setPower(-0.5);
+                rightRear.setPower(0.5);
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftRear.setPower(0);
+            rightRear.setPower(0);}
+
+        if(loc.equals(RIGHT)){
+            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+                leftFront.setPower(0.5);
+                rightFront.setPower(-0.5);
+                leftRear.setPower(0.5);
+                rightRear.setPower(-0.5);
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftRear.setPower(0);
+            rightRear.setPower(0);}
+
+
+        if(loc.equals(BACK)){
+            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+                leftFront.setPower(-0.5);
+                rightFront.setPower(-0.5);
+                leftRear.setPower(-0.5);
+                rightRear.setPower(-0.5);
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftRear.setPower(0);
+            rightRear.setPower(0);}
+
+
+
 
     }
 

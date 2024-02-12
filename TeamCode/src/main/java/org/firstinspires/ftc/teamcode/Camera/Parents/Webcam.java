@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.AutoMethods;
 import org.firstinspires.ftc.teamcode.Direction;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -21,6 +22,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Disabled
 @Autonomous
 public class Webcam extends LinearOpMode implements Direction {
+    AutoMethods bot = new AutoMethods();
     protected OpenCvCamera webcam;
     protected DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar;
     protected Servo upDown, hook;
@@ -30,24 +32,33 @@ public class Webcam extends LinearOpMode implements Direction {
     public OpMode op;
 
     double runningtime  = 0;
+    public String whatsAuto;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        initC(this);
-        sleep(1000);
+        bot.initC(this);
+
         initCam(telemetry, this);
-
-        initIMU(this);
-
         camOpen();
 
         telemetry.addLine("Waiting for start");
-
         telemetry.update();
 
         waitForStart();
+        camClose();
+        if(location == Pipeline.Location.LEFT){
+            if(whatsAuto == "redLeft"){bot.drive(this, 0.5,LEFT);}
 
-        movement(FORWARD, 0.5);
+        }
+        else if(location == Pipeline.Location.CENTER){
+            bot.drive(this, 0.5,FORWARD);
+        }
+        else{
+            bot.drive(this, 0.5,RIGHT);
+        }
+
+
+
     }
     public void initCam(Telemetry telemetry, OpMode op){
 
@@ -83,29 +94,29 @@ public class Webcam extends LinearOpMode implements Direction {
         upDown = op.hardwareMap.get(Servo.class, "upDown");
         hook = op.hardwareMap.get(Servo.class, "hook");
 
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        EnBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        EnBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        EnBar.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        EnBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        EnBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//        EnBar.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -138,7 +149,8 @@ public class Webcam extends LinearOpMode implements Direction {
         leftRear.setPower(0.0);
         rightRear.setPower(0.0);
     }
-    public void movement(String side, double time){
+    public void movement(String side, double time, OpMode op){
+        this.op = op;
         runtime.reset();
 
         if(side.equals(FORWARD)){
