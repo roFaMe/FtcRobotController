@@ -11,9 +11,10 @@ public class ParkovkaBlueRight extends AutoMethods  implements Direction{
 
         waitForStart();
 
-        bot.drive(this, 0.7, FORWARD);
+        bot.drive_by_time(this, 0.7, FORWARD);
         sleep(1000);
-        bot.drive(this, 0.55, LEFT);
-        bot.drive(this, 1.25, FORWARD);
+        bot.drive_by_time(this, 0.55, LEFT);
+        bot.drive_by_time(this, 1.25, FORWARD);
     }
 }
+

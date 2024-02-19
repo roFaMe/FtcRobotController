@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -8,29 +7,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraException;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import java.io.File;
-import java.util.ArrayList;
 
 
 @Disabled
@@ -48,15 +29,9 @@ public class AutoMethods extends LinearOpMode implements Direction{
 
     //Железо
 
-    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm;
+    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm, EnYL, EnYR, EnX;
     public Servo upDown, hook;
     private int sleep = 350;
-    public  enum  Direction{
-        forward,
-        back,
-        left,
-        right
-    }
     @Override
     public void runOpMode() throws InterruptedException {
     }
@@ -112,40 +87,125 @@ public class AutoMethods extends LinearOpMode implements Direction{
         hook.setPosition(0.8);
     }
 
+public void turn (double degrees, OpMode op, double timeout){
+    this.op = op;
 
-/*    public void camStart(OpMode op) {
-        try {
-            this.op = op;
-            int cameraMonitorViewId = op.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", op.hardwareMap.appContext.getPackageName());
-            webcam = OpenCvCameraFactory.getInstance().createWebcam(op.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-            webcam.openCameraDevice();
-            webcam.setPipeline(new Detector(op.telemetry));
-            webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-        }catch (OpenCvCameraException e){camError = true;}
-        catch (NullPointerException e2){camError = true;}
-    }*/
+    EnYL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    EnYR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-    public void camStop() {
-        if (!camError) {webcam.stopStreaming();}
+    double countin_degrees =  (EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0;
+
+    runtime.reset();
+
+    while (!isStopRequested() && !opModeIsActive() && degrees > countin_degrees && runtime.seconds() < timeout){
+        leftFront.setPower(countin_degrees - degrees);
+        leftRear.setPower(countin_degrees - degrees);
+        rightFront.setPower(-countin_degrees + degrees);
+        rightRear.setPower(-countin_degrees + degrees);
+
+        op.telemetry.addData("countin_degrees", Math.abs((EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0));
+
+        op.telemetry.update();
     }
-//    public void getPos() {
-//
-//        if (!camError) {
-//            switch (Detector.getLocation()) {
-//                case BLUE:
-//                    baza = 1;
-//                    break;
-//                case YELLOW:
-//                    baza = 2;
-//                    break;
-//                case STRIPES:
-//                    baza = 3;
-//                    break;
-//            }
-//        }
-//
-//    }
-    public void drive ( OpMode op, double timeout, String loc) {
+    leftFront.setPower(0);
+    rightFront.setPower(0);
+    leftRear.setPower(0);
+    rightRear.setPower(0);
+}
+
+public void drive(int X, int Y, OpMode op, double timeout) {
+    this.op = op;
+
+    EnYL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    EnYR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+    int X_rasst = X;
+    int Y_rasst = Y;
+    int zazor = 0;
+    double spdX = 0, spdY = 0;
+    double encX = EnX.getCurrentPosition();
+    double encY = -(EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2.0;
+    double ostX = X_rasst-encX;
+    double ostY =Y_rasst-encY;
+    double SquareGip = (ostX*ostX) + (ostY*ostY);
+    double Gip = Math.sqrt(SquareGip);
+    double turn = 0;
+
+    //PID
+    double P = 0;
+    double I = 0;
+    double D = 0;
+
+    double Kp = 0.00025;
+    double Ki = 0;
+    double Kd = 0.0005;
+
+    double last_time = 0;
+    double last_gip = Gip;
+
+    double PID = 0;
+
+    runtime.reset();
+
+
+    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout && Gip > zazor) {
+
+        P = Kp * Gip;
+
+        I += Ki * Gip;
+
+        if (runtime.milliseconds() - last_time > 50)
+        {
+            D = Kd * (Gip - last_gip);
+            last_time = runtime.milliseconds();
+            last_gip = Gip;
+        }
+
+        PID = P + I + D;
+
+        encX = EnX.getCurrentPosition();
+        encY = (EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2.;
+
+        SquareGip = (ostX*ostX) + (ostY*ostY);
+        Gip = Math.sqrt(SquareGip);
+
+        ostX = X_rasst-encX;
+        ostY = Y_rasst-encY;
+
+        spdX = ostX / Gip;
+        spdY = ostY / Gip;
+
+        turn = (-EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 800.0;
+
+        leftFront.setPower((-spdX + spdY - turn) * PID);
+        rightFront.setPower((-spdX - spdY - turn) * PID);
+        leftRear.setPower((spdX - spdY - turn) * PID);
+        rightRear.setPower((spdX + spdY - turn) * PID);
+
+        op.telemetry.addData("spdX", spdX);
+        op.telemetry.addData("spdY", spdY);
+        op.telemetry.addData("Speed", PID);
+
+        op.telemetry.addData("X", EnX.getCurrentPosition());
+        op.telemetry.addData("Y", (EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2);
+
+        op.telemetry.addData("Энкодер слева", EnYL.getCurrentPosition());
+        op.telemetry.addData("Энкодер справ", EnYR.getCurrentPosition());
+
+
+        op.telemetry.addData("encX", encX);
+        op.telemetry.addData("encY", encY);
+        op.telemetry.addData("ostX", ostX);
+        op.telemetry.addData("ostY", ostY);
+        op.telemetry.update();
+
+    }
+    leftFront.setPower(0);
+    leftRear.setPower(0);
+    rightRear.setPower(0);
+    rightFront.setPower(0);
+}
+    public void drive_by_time ( OpMode op, double timeout, String loc) {
         this.op = op;
 
         runtime.reset();
@@ -197,24 +257,20 @@ public class AutoMethods extends LinearOpMode implements Direction{
             rightFront.setPower(0);
             leftRear.setPower(0);
             rightRear.setPower(0);}
-
-
-
-
     }
 
-//    public void Telescope (int number){
-//        while(!opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() != number){
-//            if (number - m5.getCurrentPosition() > 10) {
-//                m5.setPower(-0.75);
-//            }
-//            else if (number - m5.getCurrentPosition() < -10) {
-//                m5.setPower(0.5);
-//            }
-//            else {
-//                m5.setPower(-0.05);
-//                break;
-//            }
-//        }
-//    }
+    public void Telescope (int number){
+        while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number){
+            if (number - baraban.getCurrentPosition() > 10) {
+                baraban.setPower(-0.75);
+            }
+            else if (number - baraban.getCurrentPosition() < -10) {
+                baraban.setPower(0.5);
+            }
+            else {
+                baraban.setPower(-0.05);
+                break;
+            }
+        }
+    }
 }
