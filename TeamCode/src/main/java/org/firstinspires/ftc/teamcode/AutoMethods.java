@@ -92,16 +92,31 @@ public void turn (double degrees, OpMode op, double timeout){
 
     EnYL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     EnYR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+    double max_accel = 0.8;
     double countin_degrees =  (EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0;
-
+    double countin_accel = (max_accel/Math.abs((countin_degrees - degrees)/900));
     runtime.reset();
 
-    while (!isStopRequested() && !opModeIsActive() && degrees > countin_degrees && runtime.seconds() < timeout){
-        leftFront.setPower(countin_degrees - degrees);
-        leftRear.setPower(countin_degrees - degrees);
-        rightFront.setPower(-countin_degrees + degrees);
-        rightRear.setPower(-countin_degrees + degrees);
+    while (!isStopRequested() && !opModeIsActive() && degrees != countin_degrees && runtime.seconds() < timeout){
+        if((countin_degrees - degrees)/900 * countin_accel > 0.26){
+            leftFront.setPower((countin_degrees - degrees)/900 * countin_accel);
+            leftRear.setPower((countin_degrees - degrees)/900 * countin_accel);
+            rightFront.setPower((-countin_degrees + degrees)/900 * countin_accel);
+            rightRear.setPower((-countin_degrees + degrees)/900 * countin_accel);
+        }else {
+            if(countin_degrees > 0){
+                leftFront.setPower(-0.25);
+                leftRear.setPower(-0.25);
+                rightFront.setPower(0.25);
+                rightRear.setPower(0.25);
+            }else{
+                leftFront.setPower(0.25);
+                leftRear.setPower(0.25);
+                rightFront.setPower(-0.25);
+                rightRear.setPower(-0.25);
+            }
+        }
+
 
         op.telemetry.addData("countin_degrees", Math.abs((EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0));
 
