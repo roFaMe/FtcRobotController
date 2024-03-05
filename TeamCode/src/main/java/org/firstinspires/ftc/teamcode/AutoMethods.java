@@ -9,9 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.PipelineRecordingParameters;
 
 
 @Disabled
@@ -29,7 +31,7 @@ public class AutoMethods extends LinearOpMode implements Direction{
 
     //Железо
 
-    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm, EnYL, EnYR, EnX;
+    public DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm, EnYL, EnYR, EnX;
     public Servo upDown, hook;
     private int sleep = 350;
     @Override
@@ -52,32 +54,33 @@ public class AutoMethods extends LinearOpMode implements Direction{
         leftFront = op.hardwareMap.get(DcMotor.class, "leftFront");
         rightRear = op.hardwareMap.get(DcMotor.class, "rightRear");
         rightFront = op.hardwareMap.get(DcMotor.class, "rightFront");
-        baraban = op.hardwareMap.get(DcMotor.class, "baraban");
+        EnX = op.hardwareMap.get(DcMotor.class, "EnX");
 
-        hook = op.hardwareMap.get(Servo.class, "hook");
-        upDown = op.hardwareMap.get(Servo.class, "upDown");
+//        baraban = op.hardwareMap.get(DcMotor.class, "baraban");
+//
+//        hook = op.hardwareMap.get(Servo.class, "hook");
+//        upDown = op.hardwareMap.get(Servo.class, "upDown");
 
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        EnX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void hookOpen(){
@@ -87,61 +90,91 @@ public class AutoMethods extends LinearOpMode implements Direction{
         hook.setPosition(0.8);
     }
 
-public void turn (double degrees, OpMode op, double timeout){
+   public void passive (OpMode op){
+        this.op = op;
+       while (!isStopRequested() && !opModeIsActive() ) {
+           op.telemetry.addData("СлСп", leftFront.getCurrentPosition());
+           op.telemetry.addData("СзСл", leftRear.getCurrentPosition());
+           op.telemetry.addData("СпрСп", rightFront.getCurrentPosition());
+           op.telemetry.addData("СпрСз", rightRear.getCurrentPosition());
+           op.telemetry.update();
+       }
+    }
+
+public void turn ( OpMode op,double degrees, double timeout){
     this.op = op;
 
-    EnYL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    EnYR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    double max_accel = 0.8;
-    double countin_degrees =  (EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0;
+    leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+    leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+    double max_accel = 0.4;
+    double countin_degrees = 0;
     double countin_accel = (max_accel/Math.abs((countin_degrees - degrees)/900));
     runtime.reset();
-
     while (!isStopRequested() && !opModeIsActive() && degrees != countin_degrees && runtime.seconds() < timeout){
-        if((countin_degrees - degrees)/900 * countin_accel > 0.26){
-            leftFront.setPower((countin_degrees - degrees)/900 * countin_accel);
-            leftRear.setPower((countin_degrees - degrees)/900 * countin_accel);
-            rightFront.setPower((-countin_degrees + degrees)/900 * countin_accel);
-            rightRear.setPower((-countin_degrees + degrees)/900 * countin_accel);
-        }else {
-            if(countin_degrees > 0){
-                leftFront.setPower(-0.25);
-                leftRear.setPower(-0.25);
-                rightFront.setPower(0.25);
-                rightRear.setPower(0.25);
-            }else{
-                leftFront.setPower(0.25);
-                leftRear.setPower(0.25);
-                rightFront.setPower(-0.25);
-                rightRear.setPower(-0.25);
-            }
-        }
+        countin_degrees =  (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
+                - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4  );
+            countin_accel = (Math.abs(max_accel)/Math.abs((countin_degrees - degrees)/900));
+
+    leftFront.setPower(((countin_degrees/0.98 - degrees) / 900 * countin_accel));
+    leftRear.setPower(((countin_degrees/0.98 - degrees) / 900 * countin_accel));
+    rightFront.setPower(((-countin_degrees/0.98 + degrees) / 900 * countin_accel));
+    rightRear.setPower(((-countin_degrees/0.98 + degrees) / 900 * countin_accel));
 
 
-        op.telemetry.addData("countin_degrees", Math.abs((EnYL.getCurrentPosition() - EnYR.getCurrentPosition()) / 2.0));
+        op.telemetry.addData("max_accel",   max_accel);
+        op.telemetry.addData("countin_degrees", countin_degrees  + "%");
+        op.telemetry.addData("degrees", degrees);
+        op.telemetry.addData("setPower", countin_degrees- degrees);
+        op.telemetry.addData("time", runtime.seconds());
+        op.telemetry.addData("lF", leftFront.getPower());
+        op.telemetry.addData("lR", leftRear.getPower());
+        op.telemetry.addData("rF", rightFront.getPower());
+        op.telemetry.addData("rR", rightRear.getPower());
+
+        op.telemetry.addData("lFpos", leftFront.getCurrentPosition());
+        op.telemetry.addData("lRpos", -leftRear.getCurrentPosition());
+        op.telemetry.addData("rFpos", rightFront.getCurrentPosition());
+        op.telemetry.addData("rRpos", rightRear.getCurrentPosition());
+
+        op.telemetry.addData("EnX", EnX.getCurrentPosition());
 
         op.telemetry.update();
+
     }
-    leftFront.setPower(0);
-    rightFront.setPower(0);
-    leftRear.setPower(0);
-    rightRear.setPower(0);
+    leftFront.setPower(0.0);
+    rightFront.setPower(0.0);
+    leftRear.setPower(0.0);
+    rightRear.setPower(0.0);
 }
 
-public void drive(int X, int Y, OpMode op, double timeout) {
+public void drive( OpMode op,int X, int Y, double timeout) {
     this.op = op;
+    leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-    EnYL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    EnYR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-    int X_rasst = X;
-    int Y_rasst = Y;
     int zazor = 0;
     double spdX = 0, spdY = 0;
     double encX = EnX.getCurrentPosition();
-    double encY = -(EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2.0;
-    double ostX = X_rasst-encX;
-    double ostY =Y_rasst-encY;
+    double encY = (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
+            + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4)*(1600/145.1);
+
+    double ostX = X-encX;
+    double ostY =Y-encY;
     double SquareGip = (ostX*ostX) + (ostY*ostY);
     double Gip = Math.sqrt(SquareGip);
     double turn = 0;
@@ -179,34 +212,35 @@ public void drive(int X, int Y, OpMode op, double timeout) {
         PID = P + I + D;
 
         encX = EnX.getCurrentPosition();
-        encY = (EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2.;
+        encY = (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
+                + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4) * (1600/145.1);
 
         SquareGip = (ostX*ostX) + (ostY*ostY);
         Gip = Math.sqrt(SquareGip);
 
-        ostX = X_rasst-encX;
-        ostY = Y_rasst-encY;
+        ostX = X-encX;
+        ostY = Y-encY;
 
         spdX = ostX / Gip;
         spdY = ostY / Gip;
 
-        turn = (-EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 800.0;
+        turn =  (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
+                - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4);
 
-        leftFront.setPower((-spdX + spdY - turn) * PID);
-        rightFront.setPower((-spdX - spdY - turn) * PID);
-        leftRear.setPower((spdX - spdY - turn) * PID);
-        rightRear.setPower((spdX + spdY - turn) * PID);
+        leftFront.setPower((-spdX + spdY + turn) * PID);
+        rightFront.setPower((spdX + spdY - turn) * PID);
+        leftRear.setPower((spdX + spdY + turn) * PID);
+        rightRear.setPower((-spdX + spdY - turn) * PID);
+
+        op.telemetry.addData("turn", turn);
 
         op.telemetry.addData("spdX", spdX);
         op.telemetry.addData("spdY", spdY);
         op.telemetry.addData("Speed", PID);
 
         op.telemetry.addData("X", EnX.getCurrentPosition());
-        op.telemetry.addData("Y", (EnYL.getCurrentPosition() + EnYR.getCurrentPosition()) / 2);
-
-        op.telemetry.addData("Энкодер слева", EnYL.getCurrentPosition());
-        op.telemetry.addData("Энкодер справ", EnYR.getCurrentPosition());
-
+        op.telemetry.addData("Y", (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
+                + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4*(1600/145.1)));
 
         op.telemetry.addData("encX", encX);
         op.telemetry.addData("encY", encY);

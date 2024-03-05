@@ -58,51 +58,54 @@ public class Webcam extends LinearOpMode implements Direction {
     public void runOpMode() throws InterruptedException {
         bot.initC(this);
 
-        initCam(telemetry, this);
-        camOpen();
+//
+//        initCam(telemetry, this);
+//        camOpen();
 
         telemetry.addLine("Waiting for start");
         telemetry.update();
-
-        bot.hookClose();
-
         waitForStart();
-        camClose();
-        if(location == Pipeline.Location.LEFT){
-            if(whatsAuto == "redLeft"){
-                bot.drive(0, 3000, this, 0.5);
-                bot.turn(90, this, 3);//поворот на 90
-                bot.drive(0, 300,this,0.7);
-                bot.drive(2000, 0,this,0.7);
-                bot.drive(0, -5000,this,0.7);
-                bot.drive(-2000, -2000,this,0.7);
-                bot.turn(180, this, 5);//поворот на 180
-                //находим нужную зону на заднике
-                if(tagProcessor.getDetections().size() > 0){
-                    AprilTagDetection tag = tagProcessor.getDetections().get(0);
+        bot.passive(this);
 
-                    telemetry.addData("x", tag.ftcPose.x);
-                    telemetry.addData("y", tag.ftcPose.y);
-                    telemetry.addData("z", tag.ftcPose.z);
-                    telemetry.addData("roll", tag.ftcPose.roll);
-                    telemetry.addData("pitch", tag.ftcPose.pitch);
-                    telemetry.addData("yaw", tag.ftcPose.yaw);
-
-                    telemetry.update();
-                }
-            }
-            bot.Telescope(1000);
-            bot.sleep(500);
-            bot.upDown.setPosition(0.15);
-            bot.hookOpen();
-
-        }
-        else if(location == Pipeline.Location.CENTER){
-            bot.drive_by_time(this, 0.5,FORWARD);
-        }
-        else{
-            bot.drive_by_time(this, 0.5,RIGHT);
-        }
+//        bot.hookClose();
+//
+//        waitForStart();
+//        camClose();
+//        if(location == Pipeline.Location.LEFT){
+//            if(whatsAuto == "redLeft"){
+//                bot.drive(0, 3000, this, 0.5);
+//                bot.turn(90, this, 3);//поворот на 90
+//                bot.drive(0, 300,this,0.7);
+//                bot.drive(2000, 0,this,0.7);
+//                bot.drive(0, -5000,this,0.7);
+//                bot.drive(-2000, -2000,this,0.7);
+//                bot.turn(180, this, 5);//поворот на 180
+//                //находим нужную зону на заднике
+//                if(tagProcessor.getDetections().size() > 0){
+//                    AprilTagDetection tag = tagProcessor.getDetections().get(0);
+//
+//                    telemetry.addData("x", tag.ftcPose.x);
+//                    telemetry.addData("y", tag.ftcPose.y);
+//                    telemetry.addData("z", tag.ftcPose.z);
+//                    telemetry.addData("roll", tag.ftcPose.roll);
+//                    telemetry.addData("pitch", tag.ftcPose.pitch);
+//                    telemetry.addData("yaw", tag.ftcPose.yaw);
+//
+//                    telemetry.update();
+//                }
+//            }
+//            bot.Telescope(1000);
+//            bot.sleep(500);
+//            bot.upDown.setPosition(0.15);
+//            bot.hookOpen();
+//
+//        }
+//        else if(location == Pipeline.Location.CENTER){
+//            bot.drive_by_time(this, 0.5,FORWARD);
+//        }
+//        else{
+//            bot.drive_by_time(this, 0.5,RIGHT);
+//        }
 
     }
     public void initCam(Telemetry telemetry, OpMode op){
