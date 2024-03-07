@@ -12,7 +12,7 @@ public class Test extends AutoMethods  implements Direction {
 
         waitForStart();
 
-        bot.drive(this, 0 ,150,30);
+        bot.turn(this,90,1.2);
 
 
     }

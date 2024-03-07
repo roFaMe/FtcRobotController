@@ -167,83 +167,40 @@ public void drive( OpMode op,int X, int Y, double timeout) {
     rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-    int zazor = 0;
-    double spdX = 0, spdY = 0;
-    double encX = EnX.getCurrentPosition();
-    double encY = (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
-            + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4)*(1600/145.1);
-
-    double ostX = X-encX;
-    double ostY =Y-encY;
-    double SquareGip = (ostX*ostX) + (ostY*ostY);
-    double Gip = Math.sqrt(SquareGip);
     double turn = 0;
-
-    //PID
-    double P = 0;
-    double I = 0;
-    double D = 0;
-
-    double Kp = 0.00025;
-    double Ki = 0;
-    double Kd = 0.0005;
-
-    double last_time = 0;
-    double last_gip = Gip;
-
-    double PID = 0;
+    double ostX = X - EnX.getCurrentPosition();
+    double ostY = Y - (rightFront.getCurrentPosition() * 1600 /145.1);
 
     runtime.reset();
 
 
-    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout && Gip > zazor) {
-
-        P = Kp * Gip;
-
-        I += Ki * Gip;
-
-        if (runtime.milliseconds() - last_time > 50)
-        {
-            D = Kd * (Gip - last_gip);
-            last_time = runtime.milliseconds();
-            last_gip = Gip;
+    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout && ostY != 0 && ostX != 0 ) {
+        if(X != 0){
+            ostX = X - EnX.getCurrentPosition();
+        }
+        if(Y != 0){
+            ostY = Y - (rightFront.getCurrentPosition() * 1600 /145.1);
         }
 
-        PID = P + I + D;
+        leftFront.setPower(ostX - ostY + turn);
+        rightFront.setPower(-ostX - ostY - turn);
+        leftRear.setPower(-ostX - ostY + turn);
+        rightRear.setPower(ostX - ostY - turn);
 
-        encX = EnX.getCurrentPosition();
-        encY = (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
-                + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4) * (1600/145.1);
-
-        SquareGip = (ostX*ostX) + (ostY*ostY);
-        Gip = Math.sqrt(SquareGip);
-
-        ostX = X-encX;
-        ostY = Y-encY;
-
-        spdX = ostX / Gip;
-        spdY = ostY / Gip;
-
-        turn =  (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
-                - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4);
-
-        leftFront.setPower((-spdX + spdY + turn) * PID);
-        rightFront.setPower((spdX + spdY - turn) * PID);
-        leftRear.setPower((spdX + spdY + turn) * PID);
-        rightRear.setPower((-spdX + spdY - turn) * PID);
+        op.telemetry.addData("lFpos", leftFront.getCurrentPosition());
+        op.telemetry.addData("lRpos", -leftRear.getCurrentPosition());
+        op.telemetry.addData("rFpos", rightFront.getCurrentPosition());
+        op.telemetry.addData("rRpos", rightRear.getCurrentPosition());
 
         op.telemetry.addData("turn", turn);
+        op.telemetry.addData("lF", leftFront.getPower());
+        op.telemetry.addData("lR", leftRear.getPower());
+        op.telemetry.addData("rF", rightFront.getPower());
+        op.telemetry.addData("rR", rightRear.getPower());
 
-        op.telemetry.addData("spdX", spdX);
-        op.telemetry.addData("spdY", spdY);
-        op.telemetry.addData("Speed", PID);
+        op.telemetry.addData("X_rasst", EnX.getCurrentPosition());
+        op.telemetry.addData("Y_rasst",0);
 
-        op.telemetry.addData("X", EnX.getCurrentPosition());
-        op.telemetry.addData("Y", (((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
-                + (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4*(1600/145.1)));
-
-        op.telemetry.addData("encX", encX);
-        op.telemetry.addData("encY", encY);
         op.telemetry.addData("ostX", ostX);
         op.telemetry.addData("ostY", ostY);
         op.telemetry.update();
