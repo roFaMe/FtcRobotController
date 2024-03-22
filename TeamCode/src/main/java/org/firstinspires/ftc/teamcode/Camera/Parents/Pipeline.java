@@ -15,21 +15,22 @@ public class Pipeline extends OpenCvPipeline {
     protected Mat rightCrop;
     protected double leftavgfin;
     protected double midleavgfin;
-    protected double rightavgfin;
+    public double rightavgfin;
     protected  Mat output = new Mat();
     protected Scalar rectColor = new Scalar(255, 255, 255);
-    public enum Location {
+    protected enum Location{
         LEFT,
         CENTER,
         RIGHT
     }
-    public Location location;
-    public  Location getLocation(){
-        return  location;
-    }
+    public static Location location;
     public Pipeline(OpenCvCamera webcam, Telemetry telemetry){
         this.webcam = webcam;
         this.telemetry = telemetry;
+    }
+
+    public Pipeline(){
+
     }
     boolean viewportPaused;
 
@@ -46,7 +47,7 @@ public class Pipeline extends OpenCvPipeline {
             webcam.resumeViewport();
         }
     }
-    protected Telemetry tel1 (Telemetry tel1, Scalar lefavg, Scalar midleavg){
+    public Telemetry tel1 (Telemetry tel1, Scalar lefavg, Scalar midleavg){
         tel1.addData("leftavgfin",lefavg.val[0]);
         tel1.addData("midleavgfin",midleavg.val[0]);
         return tel1;

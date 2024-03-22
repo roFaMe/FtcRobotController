@@ -173,10 +173,10 @@ public void turn ( OpMode op,double degrees, double timeout) {
     double DIST_wheel = (lengh_of_robot_round_by_wheel / (360 / degrees));
 
     double max_accel = 0.5;
-    double countin_degrees_1 = 0;
+    double countin_degrees = 0;
     double countin_degrees_2 = 0;
-    double countin_accel_one = (Math.abs(max_accel) / Math.abs((countin_degrees_1 - degrees)));
-    double countin_accel_two = (Math.abs(max_accel) / Math.abs((-countin_degrees_1 + degrees)));
+    double countin_accel_one = (Math.abs(max_accel) / Math.abs((countin_degrees - degrees)));
+    double countin_accel_two = (Math.abs(max_accel) / Math.abs((-countin_degrees + degrees)));
 
     double countin_accel_one_2 = (Math.abs(max_accel) / Math.abs((countin_degrees_2 - degrees)));
     double countin_accel_two_2 = (Math.abs(max_accel) / Math.abs((-countin_degrees_2 + degrees)));
@@ -185,129 +185,36 @@ public void turn ( OpMode op,double degrees, double timeout) {
     double enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
     double enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
     double vyr = enRY - enLY;
-    double enY = (enRY-enLY)/2;
+    double enY = (enRY - enLY)/2;
 
-    double countin_accel_1 = (Math.abs(max_accel) / Math.abs((countin_CM_by_enX - DIST_enX)));
-    double countin_accel_2 = (Math.abs(max_accel) / Math.abs((-countin_CM_by_enX + DIST_enX)));
-
-    double countin_degrees = Math.ceil(((((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition()) / 2.0
-            - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition()) / 2.0) / 4.0 * 0.745)));
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    double max_speed = 0.4;
+    double max_speed = 0.6;
     double ost_angles =  degrees - Math.abs(angles.firstAngle);
     double v1 = Range.clip((countin_CM_by_enX -  ost_angles - DIST_enX) / degrees,-max_speed,max_speed);
     double v2 = Range.clip((-countin_CM_by_enX + ost_angles + DIST_enX) / degrees,-max_speed,max_speed);
     runtime.reset();
 
-
-//    while ((!isStopRequested() && !opModeIsActive() && degrees != countin_degrees_1 && runtime.seconds() < timeout
-//            && (leftRear.getPower() < 0.15 || leftRear.getPower() > -0.15 ))){
-//
-//        imu_pos = Math.ceil(Math.abs(imu.getAngularOrientation().firstAngle * 57.7));
-//
-//        countin_degrees_1 =  Math.ceil(((((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition())/2.0
-//                - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0)/4.0  * 0.745)));
-//
-//        enX = EnX.getCurrentPosition();
-//
-//        countin_degrees_2 = enX * 145.1 / 1600;
-//
-////    leftFront.setPower(Range.clip(((countin_degrees_1 - degrees) * countin_accel_one ) , -1, 1));
-////    leftRear.setPower(Range.clip(((countin_degrees_1 - degrees)  * countin_accel_one ), -1, 1));
-////    rightFront.setPower(Range.clip(((-countin_degrees_1 + degrees) * countin_accel_two), -1, 1));
-////    rightRear.setPower(Range.clip(((-countin_degrees_1 + degrees) * countin_accel_two ), -1, 1));
-//
-////        leftFront.setPower(Range.clip(((countin_degrees_2 - degrees) * countin_accel_one_2 ) , -1, 1));
-////        leftRear.setPower(Range.clip(((countin_degrees_2 - degrees)  * countin_accel_one_2 ), -1, 1));
-////        rightFront.setPower(Range.clip(((-countin_degrees_2 + degrees) * countin_accel_two_2), -1, 1));
-////        rightRear.setPower(Range.clip(((-countin_degrees_2 + degrees) * countin_accel_two_2 ), -1, 1));
-//
-//        op.telemetry.addData("lengh_of_robot_round_by_wheel", lengh_of_robot_round_by_wheel);
-//        op.telemetry.addData("lengh_of_robot_round_by_enX", lengh_of_robot_round_by_enX);
-//
-//        op.telemetry.addData("lengh_round_enX", lengh_round_enX);
-//        op.telemetry.addData("lengh_round_wheel", lengh_round_wheel);
-//
-//        op.telemetry.addData("tpCM_enX",Math.ceil(tpCM_enX));
-//        op.telemetry.addData("tpCM_wheel", Math.ceil(tpCM_wheel));
-//
-//        op.telemetry.addData("lFpos", leftFront.getCurrentPosition());
-//        op.telemetry.addData("lRpos", -leftRear.getCurrentPosition());
-//        op.telemetry.addData("rFpos", rightFront.getCurrentPosition());
-//        op.telemetry.addData("rRpos", rightRear.getCurrentPosition());
-//
-//
-//        op.telemetry.update();
-//
-//    }
-//    while (!isStopRequested() && !opModeIsActive() && countin_CM_by_wheel < (DIST_wheel)
-//            || countin_CM_by_wheel > (-DIST_wheel) && !isStopRequested() && !opModeIsActive()) {
-//        double a = 0.6;
-//
-////        enX = EnX.getCurrentPosition();
-//        countin_CM_by_wheel = Math.floor(((((-leftRear.getCurrentPosition() + leftFront.getCurrentPosition()) / 2.0
-//                - (rightFront.getCurrentPosition() + rightRear.getCurrentPosition()) / 2.0) / 4.0 * 0.745)) / tpCM_wheel);
-//        countin_CM_by_enX = Math.floor(enX / tpCM_enX);
-//
-//        double v1 = (Range.clip(((countin_CM_by_wheel - (DIST_wheel))), -a, a));
-//        double v2 = (Range.clip(((-countin_CM_by_wheel + (DIST_wheel))), -a, a));
-//
-//        leftFront.setPower(v1);
-//        leftRear.setPower(v1);
-//        rightFront.setPower(v2);
-//        rightRear.setPower(v2);
-//
-//        op.telemetry.addData("rounds_by_wheel", rounds_by_wheel);
-//
-//        op.telemetry.addData("DIST", DIST_wheel);
-//        op.telemetry.addData("countin_CM_by_wheel", countin_CM_by_wheel);
-//        op.telemetry.addData("tpCM_enX", (tpCM_enX));
-//        op.telemetry.addData("tpCM_wheel", (tpCM_wheel));
-//
-//        op.telemetry.addData("enX", enX);
-//
-//        op.telemetry.addData("lengh_of_robot_round_by_wheel", lengh_of_robot_round_by_wheel);
-//        op.telemetry.addData("lengh_of_robot_round_by_enX", lengh_of_robot_round_by_enX);
-//
-//        op.telemetry.addData("lengh_round_enX", lengh_round_enX);
-//        op.telemetry.addData("lengh_round_wheel", lengh_round_wheel);
-//
-//
-//        op.telemetry.addData("lFpos", leftFront.getCurrentPosition());
-//        op.telemetry.addData("lRpos", -leftRear.getCurrentPosition());
-//        op.telemetry.addData("rFpos", rightFront.getCurrentPosition());
-//        op.telemetry.addData("rRpos", rightRear.getCurrentPosition());
-//
-//        op.telemetry.addData("lFPOW", leftFront.getPower());
-//        op.telemetry.addData("lRPOW", leftRear.getPower());
-//        op.telemetry.addData("rFPOW", rightFront.getPower());
-//        op.telemetry.addData("rRPOW", rightRear.getPower());
-//
-//        op.telemetry.update();
-//    }
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-    while (!isStopRequested() && !opModeIsActive()  && runtime.seconds() < timeout) {
+    while (!isStopRequested() && !opModeIsActive()  && runtime.seconds() < timeout && degrees != -angles.firstAngle) {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
         enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
         enX = EnX.getCurrentPosition();
-        vyr = (Math.abs(enLY) - Math.abs(enRY))/100.0;
+        vyr = (Math.abs(enLY) - Math.abs(enRY));
         enY = Math.abs((enRY-enLY)/2);
         tpCM_enX = Math.floor((1600/lengh_of_robot_round_by_enX * 4.0));
         tpCM_wheel = Math.floor((145.1/ lengh_of_robot_round_by_wheel * 4.0));
         countin_CM_by_enX = enX/tpCM_enX;
         countin_CM_by_wheel = enY/tpCM_wheel;
+        countin_degrees =  (enLY - enRY) / 4.0;
+        double vyr_ug =  (-angles.firstAngle / degrees);
+        double spd = countin_degrees - degrees;
 
-        ost_angles =  degrees - (Math.abs(angles.firstAngle));
 
-        if(Math.abs(v1) >= 0.15  ){
-            v1 = Range.clip((countin_CM_by_enX - DIST_enX - vyr -  ost_angles ) / (degrees),-max_speed,max_speed);
-            v2 = Range.clip((-countin_CM_by_enX + DIST_enX + vyr + ost_angles ) / (degrees),-max_speed,max_speed);
-        }else{
-            v1 = Range.clip((countin_CM_by_enX - DIST_enX - vyr -  ost_angles ) * 15.0 / (degrees) ,-max_speed,max_speed);
-            v2 = Range.clip((-countin_CM_by_enX + DIST_enX + vyr + ost_angles ) * 15.0 / (degrees) ,-max_speed,max_speed);
-        }
+            v1 = Range.clip((spd + vyr_ug ) ,-max_speed,max_speed);
+            v2 = Range.clip((-spd - vyr_ug )  ,-max_speed,max_speed);
+
 
         leftFront.setPower(v1);
         leftRear.setPower(v1);
@@ -318,6 +225,8 @@ public void turn ( OpMode op,double degrees, double timeout) {
         op.telemetry.addData("lRPOW", leftRear.getPower());
         op.telemetry.addData("rFPOW", rightFront.getPower());
         op.telemetry.addData("rRPOW", rightRear.getPower());
+        op.telemetry.addData("vyr_ug", vyr_ug);
+        op.telemetry.addData("countin_degrees", countin_degrees);
         op.telemetry.addData("DIST_enX", DIST_enX);
         op.telemetry.addData("DIST_wheel", DIST_wheel);
         op.telemetry.addData("lengh_of_robot_round_by_enX", lengh_of_robot_round_by_enX);
@@ -338,6 +247,7 @@ public void turn ( OpMode op,double degrees, double timeout) {
 
         op.telemetry.update();
     }
+
     leftFront.setPower(0.0);
     rightFront.setPower(0.0);
     leftRear.setPower(0.0);
@@ -363,38 +273,45 @@ public void drive( OpMode op,double X, double Y, double timeout) {
     double enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
     double enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
     double vyr_x = (enLY - enRY) * (1600/145.1);
-    double vyr_y = enX;
     double enY = (enRY-enLY)/2;
     double ostX = Math.abs(X) - enX;
     double ostY = Math.abs(Y) - enY;
     double gip = Math.sqrt((ostX * ostX) + (ostY * ostY));
     double spdX = enX-X;
     double spdY = -enY + Y;
-    double max_speed = 1;
-    double countin_accel_one = Math.abs((max_speed/(spdX - spdY)));
-    double countin_accel_two = Math.abs((max_speed/(-spdX - spdY)));
+    double max_speed = 0.8;
+    double countin_degrees = (enLY - enRY) / 4.0;
+
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    double vyr_y = 0;
     runtime.reset();
 
-    while (!isStopRequested() && !opModeIsActive() && Math.abs((spdX + spdY + vyr_x) /(Math.abs(X) + Math.abs(Y))) >= 0.14) {
+    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         enX = -EnX.getCurrentPosition();
         enLY = ((leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0) * (1600/145.1);
         enRY = ((rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0) * (1600/145.1);
-        vyr_x = (enLY - enRY) * (1600/145.1);
-        enY = (enRY + enLY)/2 * (1600/145.1);
+        countin_degrees =  (enLY - enRY) / 4.0;
+        enY = (enRY + enLY)/2 ;
 
-         ostX = Math.abs(X) - enX;
-         ostY = Math.abs(Y) - enY;
 
-         gip = Math.sqrt((ostX * ostX) + (ostY * ostY));
+            if(X != 0 && Y == 0) {
+                vyr_y = -angles.firstAngle * 20;
+            }else  {
+                vyr_y = -angles.firstAngle * 200;
+            }
 
-         spdX = enX - X;
+            spdX = enX - X;
 
-         spdY = enY - Y;
+            spdY = enY - Y;
 
-        leftFront.setPower(Range.clip((spdX + spdY + vyr_x )/(Math.abs(X) + Math.abs(Y)) , -max_speed, max_speed));
-        rightFront.setPower(Range.clip((-spdX + spdY - vyr_x )/(Math.abs(X) + Math.abs(Y) ), -max_speed, max_speed));
-        leftRear.setPower(Range.clip((-spdX + spdY + vyr_x )/(Math.abs(X) + Math.abs(Y) ), -max_speed, max_speed));
-        rightRear.setPower(Range.clip((spdX + spdY - vyr_x)/(Math.abs(X) + Math.abs(Y)) , -max_speed, max_speed));
+
+        leftFront.setPower(Range.clip((spdX + spdY + vyr_y )/(Math.abs(X) + Math.abs(Y)) , -max_speed - 0.2, max_speed + 0.2));
+        rightFront.setPower(Range.clip((-spdX  + spdY - vyr_y )/(Math.abs(X) + Math.abs(Y) ), -max_speed - 0.2, max_speed + 0.2));
+        leftRear.setPower(Range.clip((-spdX + spdY + vyr_y )/(Math.abs(X) + Math.abs(Y) ), -max_speed, max_speed));
+        rightRear.setPower(Range.clip((spdX + spdY - vyr_y )/(Math.abs(X) + Math.abs(Y)) , -max_speed, max_speed));
+
+        op.telemetry.addData("countin_degrees", countin_degrees);
 
         op.telemetry.addData("lFPOW", leftFront.getPower());
         op.telemetry.addData("lRPOW", leftRear.getPower());
@@ -408,80 +325,27 @@ public void drive( OpMode op,double X, double Y, double timeout) {
         op.telemetry.addData("enY", enY);
         op.telemetry.addData("enX", enX);
 
-        op.telemetry.addData("countin_accel_one", countin_accel_one);
-        op.telemetry.addData("countin_accel_two", countin_accel_two);
-
         op.telemetry.addData("spdX", spdX);
         op.telemetry.addData("spdY", spdY);
 
-        op.telemetry.addData("gip", gip);
-
         op.telemetry.update();
     }
+
     leftFront.setPower(0);
     rightFront.setPower(0);
     leftRear.setPower(0);
     rightRear.setPower(0);
 }
-    public void drive_by_time ( OpMode op, double timeout, String loc, double X ,double Y) {
-        this.op = op;
-        double enX = Math.abs(EnX.getCurrentPosition());
-    double enY = Math.abs((Math.ceil((rightFront.getCurrentPosition() +  (leftFront.getCurrentPosition())
-            + rightRear.getCurrentPosition() - leftRear.getCurrentPosition())/4) * (1600 /145.1)));
+
+public  void  left (OpMode op, double timeout){
         runtime.reset();
-        if(loc.equals(FORWARD)){
-            while ((!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout)  ) {
-
-            leftFront.setPower(-0.5);
-            rightFront.setPower(-0.5);
-            leftRear.setPower(-0.5);
-            rightRear.setPower(-0.5);
-                        op.telemetry.addData("enY", enY);
-                        op.telemetry.update();
-        }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            leftRear.setPower(0);
-            rightRear.setPower(0);}
-
-        if(loc.equals(LEFT)){
-            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
-                leftFront.setPower(0.5);
-                rightFront.setPower(-0.5);
-                leftRear.setPower(-0.5);
-                rightRear.setPower(0.5);
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            leftRear.setPower(0);
-            rightRear.setPower(0);}
-
-        if(loc.equals(RIGHT)){
-            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
-                leftFront.setPower(0.5);
-                rightFront.setPower(-0.5);
-                leftRear.setPower(0.5);
-                rightRear.setPower(-0.5);
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            leftRear.setPower(0);
-            rightRear.setPower(0);}
-
-
-        if(loc.equals(BACK)){
-            while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
-                leftFront.setPower(-0.5);
-                rightFront.setPower(-0.5);
-                leftRear.setPower(-0.5);
-                rightRear.setPower(-0.5);
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            leftRear.setPower(0);
-            rightRear.setPower(0);}
+    while(!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ){
+        leftFront.setPower(1);
+        rightFront.setPower(-1);
+        leftRear.setPower(-1);
+        rightRear.setPower(1);
     }
-
+}
     public void Telescope (int number){
         while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number){
             if (number - baraban.getCurrentPosition() > 10) {

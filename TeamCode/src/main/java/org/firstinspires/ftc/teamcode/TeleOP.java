@@ -20,7 +20,7 @@ public class TeleOP extends LinearOpMode{
     //Таймер
     Timer time = new Timer();
     //Железо
-    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, arm, EnBar;
+    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, arm, EnBar, leftSuck,rightSuck;
     private Servo upDown, hook, plane;
 
     //Переменные моторов
@@ -33,6 +33,7 @@ public class TeleOP extends LinearOpMode{
     double ho = 0.8;//захват
     double pl = 0.45;//начальное положение
     private double up = 0.4;
+    private double speed = 0.65 ;
 
     private ElapsedTime runtime = new ElapsedTime();
     File telescopeFile = AppUtil.getInstance().getSettingsFile("telescopeFile.txt"); //Файл с позицией телескопа
@@ -45,6 +46,12 @@ public class TeleOP extends LinearOpMode{
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftRear = hardwareMap.get(DcMotor.class, "leftRear");
         rightRear = hardwareMap.get(DcMotor.class, "rightRear");
+
+        leftSuck = hardwareMap.get(DcMotor.class, "leftSuck");
+        rightSuck = hardwareMap.get(DcMotor.class, "rightSuck");
+
+
+
 //        baraban = hardwareMap.get(DcMotor.class, "baraban");
 //        arm = hardwareMap.get(DcMotor.class, "arm");
 //        EnBar = hardwareMap.get(DcMotor.class, "EnBar");
@@ -57,21 +64,19 @@ public class TeleOP extends LinearOpMode{
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
+        leftSuck.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSuck.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-
-
-
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -97,6 +102,7 @@ public class TeleOP extends LinearOpMode{
 
 
 
+
                     while (!isStopRequested() & opModeIsActive()) {
 
                         //ТЕЛЕЖКА
@@ -104,7 +110,7 @@ public class TeleOP extends LinearOpMode{
 
                         //Коэффицент скорости робота
                         if (gamepad1.left_trigger < 0.5) {
-                            a = 0.5;
+                            a = 1;
                         } else if (gamepad1.left_trigger > 0.5) {
                             a = 5;
                         }
@@ -114,26 +120,38 @@ public class TeleOP extends LinearOpMode{
 
 
                         //Мощность моторов тележки
-                        zm1 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y + turn) * a, -1, 1);
+                        zm1 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y + turn) * a, -speed , speed );
                         if (zm1 > -0.05 && zm1 < 0.05) {
                             zm1 = 0;
                         }
 
-                        zm2 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
+                        zm2 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -speed , speed  );
                         if (zm2 > -0.05 && zm2 < 0.05) {
                             zm2 = 0;
                         }
 
-                        zm3 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y + turn) * a, -1, 1);
+                        zm3 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y + turn) * a, -speed, speed);
                         if (zm3 > -0.05 && zm3 < 0.05) {
                             zm3 = 0;
                         }
 
-                        zm4 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
+                        zm4 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -speed, speed);
                         if (zm4 > -0.05 && zm4 < 0.05) {
                             zm4 = 0;
                         }
+                        if (gamepad1.left_trigger > 0.05 ){
+                            leftSuck.setPower(1);
+                            rightSuck.setPower(-1);
 
+                        }else{leftSuck.setPower(0);
+                            rightSuck.setPower(0);}
+
+                        if (gamepad1.right_trigger > 0.05 ){
+                            leftSuck.setPower(-1);
+                            rightSuck.setPower(1);
+
+                        }else{leftSuck.setPower(0);
+                            rightSuck.setPower(0);}
 
                         //ТЕЛЕСКОП
 

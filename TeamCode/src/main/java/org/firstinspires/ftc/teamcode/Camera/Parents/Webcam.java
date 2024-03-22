@@ -17,11 +17,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.AutoMethods;
+import org.firstinspires.ftc.teamcode.Camera.Childrens.PipeLines.PipelineReDRight;
 import org.firstinspires.ftc.teamcode.Direction;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
@@ -33,84 +35,67 @@ public class Webcam extends LinearOpMode implements Direction {
 
     protected OpenCvCamera webcam;
     protected ElapsedTime runtime = new ElapsedTime();
-    protected Pipeline.Location location;
+   public Pipeline pipe;
     public OpMode op;
-
     double runningtime  = 0;
     public String whatsAuto;
 
-    AprilTagProcessor tagProcessor = new AprilTagProcessor.Builder()
-            .setDrawAxes(true)
-            .setDrawCubeProjection(true)
-            .setDrawTagID(true)
-            .setDrawTagOutline(true)
-            .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-            .build();
-
-    VisionPortal visionPortal = new VisionPortal.Builder()
-            .addProcessor(tagProcessor)
-            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-            .setCameraResolution(new Size(640, 480))
-            .build();
+//    AprilTagProcessor tagProcessor = new AprilTagProcessor.Builder()
+//            .setDrawAxes(true)
+//            .setDrawCubeProjection(true)
+//            .setDrawTagID(true)
+//            .setDrawTagOutline(true)
+//            .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+//            .build();
+//
+//    VisionPortal visionPortal = new VisionPortal.Builder()
+//            .addProcessor(tagProcessor)
+//            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+//            .setCameraResolution(new Size(640, 480))
+//            .build();
 
 
     @Override
     public void runOpMode() throws InterruptedException {
         bot.initC(this);
-
-//
-//        initCam(telemetry, this);
-//        camOpen();
-
-        telemetry.addLine("Waiting for start");
-        telemetry.update();
+        initCam(telemetry, this);
+        bot.initIMU(this);
+        camOpen();
+        runtime.reset();
         waitForStart();
-        bot.passive(this);
+        camClose();
+        if(pipe.location == Pipeline.Location.LEFT){
+            if(whatsAuto.equals("redLeft")){
+//                bot.drive(this, 0, 3500, 3);
+                bot.turn(this, -90, 30);
+//                bot.initIMU(this);
+//                bot.drive(this, 500, 0, 3);
+//                bot.turn(this, 90, 2);
+//                bot.initIMU(this);
+//                bot.drive(this, 0, 2700, 3);
+//                bot.turn(this, 90, 2.3);
+//                bot.initIMU(this);
+//                bot.drive(this, 0, 9500, 3.5);
+//                bot.drive(this, 2500, 0, 3.5);
 
-//        bot.hookClose();
-//
-//        waitForStart();
-//        camClose();
-//        if(location == Pipeline.Location.LEFT){
-//            if(whatsAuto == "redLeft"){
-//                bot.drive(0, 3000, this, 0.5);
-//                bot.turn(90, this, 3);//поворот на 90
-//                bot.drive(0, 300,this,0.7);
-//                bot.drive(2000, 0,this,0.7);
-//                bot.drive(0, -5000,this,0.7);
-//                bot.drive(-2000, -2000,this,0.7);
-//                bot.turn(180, this, 5);//поворот на 180
-//                //находим нужную зону на заднике
-//                if(tagProcessor.getDetections().size() > 0){
-//                    AprilTagDetection tag = tagProcessor.getDetections().get(0);
-//
-//                    telemetry.addData("x", tag.ftcPose.x);
-//                    telemetry.addData("y", tag.ftcPose.y);
-//                    telemetry.addData("z", tag.ftcPose.z);
-//                    telemetry.addData("roll", tag.ftcPose.roll);
-//                    telemetry.addData("pitch", tag.ftcPose.pitch);
-//                    telemetry.addData("yaw", tag.ftcPose.yaw);
-//
-//                    telemetry.update();
-//                }
-//            }
-//            bot.Telescope(1000);
-//            bot.sleep(500);
-//            bot.upDown.setPosition(0.15);
-//            bot.hookOpen();
-//
-//        }
-//        else if(location == Pipeline.Location.CENTER){
-//            bot.drive_by_time(this, 0.5,FORWARD);
-//        }
-//        else{
-//            bot.drive_by_time(this, 0.5,RIGHT);
-//        }
+            }
+        }
+        else if(pipe.location == Pipeline.Location.CENTER){
+            if(whatsAuto.equals("redLeft")){
+
+            }
+        }
+        else{
+            if(whatsAuto.equals("redLeft")){
+
+            }
+        }
 
     }
     public void initCam(Telemetry telemetry, OpMode op){
 
     }
+
     public void camOpen() {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
