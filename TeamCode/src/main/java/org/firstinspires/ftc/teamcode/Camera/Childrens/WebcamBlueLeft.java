@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Camera.Childrens.PipeLines.PipelineBluELef
 import org.firstinspires.ftc.teamcode.Camera.Parents.Webcam;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-@Autonomous(name = "CamBlueLeft", group = "Auto")
+@Autonomous(name = "BlueLeft", group = "Auto")
 public class WebcamBlueLeft extends Webcam {
 
     @Override

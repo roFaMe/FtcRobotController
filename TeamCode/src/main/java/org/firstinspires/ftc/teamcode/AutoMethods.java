@@ -39,15 +39,13 @@ public class AutoMethods extends LinearOpMode implements Direction{
     public boolean camError = false;
     public ElapsedTime runtime = new ElapsedTime();
     public OpMode op;
-    public int baza = 1;
     private BNO055IMU imu;
     private Orientation angles;
 
-
     //Железо
 
-    public DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm, EnX;
-    public Servo upDown, hook;
+    public DcMotor leftRear, rightRear, rightFront, leftFront, baraban, EnBar, arm, EnX, EnLY, EnRY;
+    public Servo upDown, hook_front, hook_back;
     private int sleep = 350;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -55,7 +53,6 @@ public class AutoMethods extends LinearOpMode implements Direction{
     //Инициализируем гироскоп
     public void initIMU(OpMode op) {
         this.op = op;
-
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
@@ -72,40 +69,57 @@ public class AutoMethods extends LinearOpMode implements Direction{
         rightRear = op.hardwareMap.get(DcMotor.class, "rightRear");
         rightFront = op.hardwareMap.get(DcMotor.class, "rightFront");
         EnX = op.hardwareMap.get(DcMotor.class, "EnX");
+        baraban = op.hardwareMap.get(DcMotor.class, "baraban");
 
-//        baraban = op.hardwareMap.get(DcMotor.class, "baraban");
-//
-//        hook = op.hardwareMap.get(Servo.class, "hook");
-//        upDown = op.hardwareMap.get(Servo.class, "upDown");
+        hook_front = op.hardwareMap.get(Servo.class, "hook_front");
+        hook_back = op.hardwareMap.get(Servo.class, "hook_back");
+        upDown = op.hardwareMap.get(Servo.class, "upDown");
 
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        baraban.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         EnX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         EnX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void hookOpen(){
-        hook.setPosition(0.55);
+    public void hookOpenFront(){
+        hook_front.setPosition(0.3);
     }
-    public void hookClose(){
-        hook.setPosition(0.8);
+    public void hookCloseFront(){
+        hook_front.setPosition(0.0);
+    }
+
+    public void hookOpenBack(){
+        runtime.reset();
+        while (runtime.milliseconds() < 700){hook_back.setPosition(0.3);}
+    }
+    public void hookCloseBack(){
+        hook_back.setPosition(0.0);
+    }
+    public void upDownUP(){
+        runtime.reset();
+        while (runtime.milliseconds() < 700) {upDown.setPosition(1);}
+
+    }
+    public void upDownDown(){
+        upDown.setPosition(0.6);
     }
 
    public void passive (OpMode op){
@@ -141,109 +155,90 @@ public void turn ( OpMode op,double degrees, double timeout) {
     rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     EnX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
     //всё указанно в см
-    double distance_to_center_wheel_enX = 14.95;
-    double distance_to_center_wheel = Math.sqrt((11.4 * 11.4) + (14.45 * 14.45));
+    double distance_to_center_enX = 12;
+    double distance_to_center_wheel = 18.4;
 
-    double wide_robot_walls = 36.9;
-    double wide_robot_up = 37.8;
-
-    double XY_centr[] = {wide_robot_up / 2, wide_robot_walls / 2};
-
-    double diam_enX = 9;
+    double diam_enX = 4.8;
     double diam_wheel = 10;
 
     double lengh_round_enX = Math.round(diam_enX * 3.14);
     double lengh_round_wheel = (diam_wheel * 3.14);
 
-    double lengh_of_robot_round_by_wheel = Math.round(2 * distance_to_center_wheel * 3.14);
-    double lengh_of_robot_round_by_enX = Math.round(2 * distance_to_center_wheel_enX * 3.14);
+    double lengh_of_robot_round_by_wheel = (2 * distance_to_center_wheel * 3.14);
+    double lengh_of_robot_round_by_enX = (2 * distance_to_center_enX * 3.14);
 
-    double tpCM_enX = Math.floor(1600 / lengh_of_robot_round_by_enX);
-    double tpCM_wheel = (145.1 * 4 / lengh_of_robot_round_by_wheel);
+    double raznost_rounds = lengh_of_robot_round_by_enX/lengh_of_robot_round_by_wheel;
 
-    double countin_CM_by_enX = 0;
-    double countin_CM_by_wheel = 0;
-
-    double rounds_by_enX = lengh_of_robot_round_by_enX / lengh_round_enX;
-    double rounds_by_wheel = lengh_of_robot_round_by_wheel / lengh_round_wheel;
-
-    double DIST_enX = (lengh_of_robot_round_by_enX / (360 / degrees) );
-    double DIST_wheel = (lengh_of_robot_round_by_wheel / (360 / degrees));
-
-    double max_accel = 0.5;
     double countin_degrees = 0;
-    double countin_degrees_2 = 0;
-    double countin_accel_one = (Math.abs(max_accel) / Math.abs((countin_degrees - degrees)));
-    double countin_accel_two = (Math.abs(max_accel) / Math.abs((-countin_degrees + degrees)));
-
-    double countin_accel_one_2 = (Math.abs(max_accel) / Math.abs((countin_degrees_2 - degrees)));
-    double countin_accel_two_2 = (Math.abs(max_accel) / Math.abs((-countin_degrees_2 + degrees)));
-
     double enX = EnX.getCurrentPosition();
     double enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
     double enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
     double vyr = enRY - enLY;
     double enY = (enRY - enLY)/2;
-
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    double max_speed = 0.6;
+    double max_speed = 1;
     double ost_angles =  degrees - Math.abs(angles.firstAngle);
-    double v1 = Range.clip((countin_CM_by_enX -  ost_angles - DIST_enX) / degrees,-max_speed,max_speed);
-    double v2 = Range.clip((-countin_CM_by_enX + ost_angles + DIST_enX) / degrees,-max_speed,max_speed);
+    double vyr_ug =  (-angles.firstAngle / degrees);
+    double spd = countin_degrees - degrees;
+    double v1 = Range.clip((spd + vyr_ug ) ,-max_speed,max_speed);
+    double v2 = Range.clip((-spd - vyr_ug )  ,-max_speed,max_speed);
+    double ticks_per_degrees_enY = 1.56;
+    double rasst = degrees * ticks_per_degrees_enY * 360/degrees * (1.53);
+
     runtime.reset();
 
-    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    while (!isStopRequested() && !opModeIsActive()  && runtime.seconds() < timeout  ) {
 
-    while (!isStopRequested() && !opModeIsActive()  && runtime.seconds() < timeout && degrees != -angles.firstAngle) {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
-        enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
-        enX = EnX.getCurrentPosition();
-        vyr = (Math.abs(enLY) - Math.abs(enRY));
-        enY = Math.abs((enRY-enLY)/2);
-        tpCM_enX = Math.floor((1600/lengh_of_robot_round_by_enX * 4.0));
-        tpCM_wheel = Math.floor((145.1/ lengh_of_robot_round_by_wheel * 4.0));
-        countin_CM_by_enX = enX/tpCM_enX;
-        countin_CM_by_wheel = enY/tpCM_wheel;
-        countin_degrees =  (enLY - enRY) / 4.0;
-        double vyr_ug =  (-angles.firstAngle / degrees);
-        double spd = countin_degrees - degrees;
 
+        enLY = -(leftFront.getCurrentPosition() + leftRear.getCurrentPosition())/2.0;
+        enRY = -(rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
+        enX = -EnX.getCurrentPosition();
+        enY = -(enRY-enLY)/2.0;
 
-            v1 = Range.clip((spd + vyr_ug ) ,-max_speed,max_speed);
-            v2 = Range.clip((-spd - vyr_ug )  ,-max_speed,max_speed);
+        spd = enY/rasst;
+        vyr = -angles.firstAngle/950.0;
 
+        if(degrees < 0){
+            if(Math.abs(spd - max_speed + vyr ) > 0.087){
+                leftFront.setPower(Range.clip((spd + max_speed + vyr ) ,-max_speed ,max_speed ));
+                leftRear.setPower(Range.clip((spd + max_speed + vyr) ,-max_speed,max_speed ));
+                rightFront.setPower(Range.clip(( -spd - max_speed - vyr) ,-max_speed,max_speed));
+                rightRear.setPower(Range.clip(( -spd - max_speed - vyr) ,-max_speed,max_speed));
+            }else{
+                break;}
+        }else{
+            if(Math.abs(spd - max_speed + vyr ) > 0.087){
+                leftFront.setPower(Range.clip((spd - max_speed + vyr ) ,-max_speed ,max_speed ));
+                leftRear.setPower(Range.clip((spd - max_speed + vyr) ,-max_speed,max_speed ));
+                rightFront.setPower(Range.clip(( -spd + max_speed - vyr) ,-max_speed,max_speed));
+                rightRear.setPower(Range.clip(( -spd + max_speed - vyr) ,-max_speed,max_speed));
+            }else{
+                break;}
+        }
 
-        leftFront.setPower(v1);
-        leftRear.setPower(v1);
-        rightFront.setPower(v2);
-        rightRear.setPower(v2);
+        op.telemetry.addData("spd", spd);
+        op.telemetry.addData("rasst", rasst);
 
         op.telemetry.addData("lFPOW", leftFront.getPower());
         op.telemetry.addData("lRPOW", leftRear.getPower());
         op.telemetry.addData("rFPOW", rightFront.getPower());
         op.telemetry.addData("rRPOW", rightRear.getPower());
-        op.telemetry.addData("vyr_ug", vyr_ug);
-        op.telemetry.addData("countin_degrees", countin_degrees);
-        op.telemetry.addData("DIST_enX", DIST_enX);
-        op.telemetry.addData("DIST_wheel", DIST_wheel);
-        op.telemetry.addData("lengh_of_robot_round_by_enX", lengh_of_robot_round_by_enX);
-        op.telemetry.addData("lengh_of_robot_round_by_wheel", lengh_of_robot_round_by_wheel);
-        op.telemetry.addData("countin_CM_by_enX", countin_CM_by_enX);
-        op.telemetry.addData("countin_CM_by_wheel", countin_CM_by_wheel);
+
+        op.telemetry.addData("angles", -angles.firstAngle);
+        op.telemetry.addData("lFPOS", -leftFront.getCurrentPosition());
+        op.telemetry.addData("lRPOS", -leftRear.getCurrentPosition());
+        op.telemetry.addData("rFPOS", -rightFront.getCurrentPosition());
+        op.telemetry.addData("rRPOS", -rightRear.getCurrentPosition());
+
         op.telemetry.addData("vyr", vyr);
+
         op.telemetry.addData("enY",enY );
+        op.telemetry.addData("enX",enX );
+
         op.telemetry.addData("enLY", enLY);
-        op.telemetry.addData("enRY",enRY);
-        op.telemetry.addData("enX",enX);
-        op.telemetry.addData("angles",angles);
-        op.telemetry.addData("getSystemStatus",imu.getSystemStatus().toShortString());
-        op.telemetry.addData("getCalibrationStatus",imu.getCalibrationStatus().toString());
-        op.telemetry.addData("firstAngle",formatAngle(angles.angleUnit, angles.firstAngle));
-        op.telemetry.addData("secondAngle",formatAngle(angles.angleUnit, angles.secondAngle));
-        op.telemetry.addData("thirdAngle",formatAngle(angles.angleUnit, angles.thirdAngle));
+        op.telemetry.addData("enRY",enRY );
 
         op.telemetry.update();
     }
@@ -256,6 +251,7 @@ public void turn ( OpMode op,double degrees, double timeout) {
 
 public void drive( OpMode op,double X, double Y, double timeout) {
     this.op = op;
+
     leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -268,60 +264,90 @@ public void drive( OpMode op,double X, double Y, double timeout) {
     rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     EnX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+    double enX = EnX.getCurrentPosition();
+    double enLY = (-leftFront.getCurrentPosition() - leftRear.getCurrentPosition()) / 2.0;
+    double enRY = (-rightFront.getCurrentPosition() - rightRear.getCurrentPosition()) / 2.0;
+    double enY = (enRY - enLY) / 2;
 
-    double enX = -EnX.getCurrentPosition();
-    double enLY = (leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0;
-    double enRY = (rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
-    double vyr_x = (enLY - enRY) * (1600/145.1);
-    double enY = (enRY-enLY)/2;
-    double ostX = Math.abs(X) - enX;
-    double ostY = Math.abs(Y) - enY;
-    double gip = Math.sqrt((ostX * ostX) + (ostY * ostY));
-    double spdX = enX-X;
+    double spdX = enX - X;
     double spdY = -enY + Y;
-    double max_speed = 0.8;
+
+    double max_speed = 1;
     double countin_degrees = (enLY - enRY) / 4.0;
 
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    double vyr_y = 0;
+    double vyr = 0;
     runtime.reset();
 
-    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ) {
+    while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout) {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        enX = -EnX.getCurrentPosition();
-        enLY = ((leftFront.getCurrentPosition() - leftRear.getCurrentPosition())/2.0) * (1600/145.1);
-        enRY = ((rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0) * (1600/145.1);
-        countin_degrees =  (enLY - enRY) / 4.0;
-        enY = (enRY + enLY)/2 ;
+        enX = EnX.getCurrentPosition();
+        enLY = ((-leftFront.getCurrentPosition() - leftRear.getCurrentPosition()) / 2.0);
+        enRY = ((-rightFront.getCurrentPosition() - rightRear.getCurrentPosition()) / 2.0);
+        enY = (enRY + enLY) / 2;
+
+        if (X != 0 && Y == 0) {
+            vyr = -angles.firstAngle / 40.0;
+        } else {
+            vyr = -angles.firstAngle / 70.0;
+        }
+        spdX = enX / X;
+        spdY = Math.abs(enY) / Y;
 
 
-            if(X != 0 && Y == 0) {
-                vyr_y = -angles.firstAngle * 20;
-            }else  {
-                vyr_y = -angles.firstAngle * 200;
+        if (Math.abs((spdY - max_speed) + vyr) > 0.087) {
+            if (Y != 0 && X == 0) {
+                if(Y > 0 ){
+                    leftFront.setPower(Range.clip(((spdY - max_speed) + vyr), -max_speed, max_speed));
+                    rightFront.setPower(Range.clip(((spdY - max_speed) - vyr), -max_speed, max_speed));
+                    leftRear.setPower(Range.clip(((spdY - max_speed) + vyr), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((spdY - max_speed) - vyr), -max_speed, max_speed));
+                }else{
+                    leftFront.setPower(Range.clip(((spdY + max_speed) + vyr), -max_speed, max_speed));
+                    rightFront.setPower(Range.clip(((spdY + max_speed) - vyr), -max_speed, max_speed));
+                    leftRear.setPower(Range.clip(((spdY + max_speed) + vyr), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((spdY + max_speed) - vyr), -max_speed, max_speed));
+                }
+
+            } else if (X != 0 && Y == 0) {
+                if(X > 0){
+                    leftFront.setPower(Range.clip(((spdX - max_speed) + vyr), -max_speed, max_speed));
+                    rightFront.setPower(Range.clip(((-spdX + max_speed) - vyr), -max_speed, max_speed));
+                    leftRear.setPower(Range.clip(((-spdX + max_speed) + vyr), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((spdX - max_speed - vyr)), -max_speed, max_speed));
+                }else{
+                    leftFront.setPower(Range.clip(((-spdX - max_speed) + vyr), -max_speed, max_speed));
+                    rightFront.setPower(Range.clip(((spdX + max_speed) - vyr), -max_speed, max_speed));
+                    leftRear.setPower(Range.clip(((spdX + max_speed) + vyr), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((-spdX - max_speed - vyr)), -max_speed, max_speed));
+                }
+
+            } else {
+                leftFront.setPower(Range.clip(((spdY - max_speed) + (spdX - max_speed) + vyr), -max_speed, max_speed));
+                rightFront.setPower(Range.clip(((-spdY + max_speed) + (-spdX + max_speed) - vyr), -max_speed, max_speed));
+                leftRear.setPower(Range.clip(((-spdY + max_speed) + (-spdX + max_speed) + vyr), -max_speed, max_speed));
+                rightRear.setPower(Range.clip(((spdY - max_speed) + (spdX - max_speed) - vyr), -max_speed, max_speed));
             }
+        }else{
+            break;
+        }
 
-            spdX = enX - X;
 
-            spdY = enY - Y;
-
-
-        leftFront.setPower(Range.clip((spdX + spdY + vyr_y )/(Math.abs(X) + Math.abs(Y)) , -max_speed - 0.2, max_speed + 0.2));
-        rightFront.setPower(Range.clip((-spdX  + spdY - vyr_y )/(Math.abs(X) + Math.abs(Y) ), -max_speed - 0.2, max_speed + 0.2));
-        leftRear.setPower(Range.clip((-spdX + spdY + vyr_y )/(Math.abs(X) + Math.abs(Y) ), -max_speed, max_speed));
-        rightRear.setPower(Range.clip((spdX + spdY - vyr_y )/(Math.abs(X) + Math.abs(Y)) , -max_speed, max_speed));
-
-        op.telemetry.addData("countin_degrees", countin_degrees);
+        op.telemetry.addData("angles.firstAngle", -angles.firstAngle);
+        op.telemetry.addData("vyr", vyr);
 
         op.telemetry.addData("lFPOW", leftFront.getPower());
         op.telemetry.addData("lRPOW", leftRear.getPower());
         op.telemetry.addData("rFPOW", rightFront.getPower());
         op.telemetry.addData("rRPOW", rightRear.getPower());
 
+        op.telemetry.addData("lFPOS", -leftFront.getCurrentPosition());
+        op.telemetry.addData("lRPOS", -leftRear.getCurrentPosition());
+        op.telemetry.addData("rFPOS", -rightFront.getCurrentPosition());
+        op.telemetry.addData("rRPOS", -rightRear.getCurrentPosition());
+
         op.telemetry.addData("enLY", enLY);
         op.telemetry.addData("enRY", enRY);
-
-        op.telemetry.addData("vyr", vyr_x);
         op.telemetry.addData("enY", enY);
         op.telemetry.addData("enX", enX);
 
@@ -329,6 +355,7 @@ public void drive( OpMode op,double X, double Y, double timeout) {
         op.telemetry.addData("spdY", spdY);
 
         op.telemetry.update();
+
     }
 
     leftFront.setPower(0);
@@ -346,16 +373,22 @@ public  void  left (OpMode op, double timeout){
         rightRear.setPower(1);
     }
 }
-    public void Telescope (int number){
-        while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number){
+    public void telescope (OpMode op, int number, double timeout){
+        baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        this.op = op;
+        runtime.reset();
+
+        while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number ){
             if (number - baraban.getCurrentPosition() > 10) {
-                baraban.setPower(-0.75);
+                baraban.setPower(0.75);
             }
             else if (number - baraban.getCurrentPosition() < -10) {
-                baraban.setPower(0.5);
+                baraban.setPower(-0.5);
             }
             else {
-                baraban.setPower(-0.05);
+                baraban.setPower(0.1);
                 break;
             }
         }

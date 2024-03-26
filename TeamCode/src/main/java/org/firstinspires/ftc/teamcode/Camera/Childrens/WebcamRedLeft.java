@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Camera.Childrens.PipeLines.PipelineReDRigh
 import org.firstinspires.ftc.teamcode.Camera.Parents.Pipeline;
 import org.firstinspires.ftc.teamcode.Camera.Parents.Webcam;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-@Autonomous(name = "CamRedLeft", group="Auto")
+@Autonomous(name = "RedLeft", group="Auto")
 public class WebcamRedLeft extends Webcam {
      @Override
     public void initCam(Telemetry telemetry, OpMode op){

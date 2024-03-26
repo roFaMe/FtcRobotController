@@ -36,39 +36,38 @@ public class PipelineReDRight extends Pipeline {
         Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);//из RGB в YCrCb
         telemetry.addLine("Pipeline running");
 
-        Rect leftRect = new Rect(0,280, 100, 100);
-        Rect midleRect = new Rect(240,280, 300, 100);
+        Rect midleRect = new Rect(166,180, 100, 90);
+        Rect rightRect = new Rect(401,221, 100, 100);
 
         Core.extractChannel(YCbCr, YCbCr, 2);//оставляем только КРАСНЫЙ цвет по политре YCbCr
 
-        Imgproc.threshold(YCbCr, YCbCr, 120, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(YCbCr, YCbCr, 110, 255, Imgproc.THRESH_BINARY_INV);
 
-        leftCrop = YCbCr.submat(leftRect);
         midleCrop = YCbCr.submat(midleRect);
+        rightCrop = YCbCr.submat(rightRect);
 
-
-        double valueleft = Core.sumElems(leftCrop).val[0] / leftRect.area() / 255;
         double valuemiddle = Core.sumElems(midleCrop).val[0] / midleRect.area() / 255;
+        double valueright = Core.sumElems(rightCrop).val[0] / rightRect.area() / 255;
 
-        leftCrop.release();
         midleCrop.release();
+        rightCrop.release();
 
 
         //Процент нужного цвета в рамке
-        telemetry.addData("RED percentage in left", Math.round(valueleft * 100) + "%");
         telemetry.addData("RED percentage in middle", Math.round(valuemiddle * 100) + "%");
+        telemetry.addData("RED percentage in right", Math.round(valueright * 100) + "%");
 
-        Imgproc.rectangle(YCbCr, leftRect, rectColor, 2);
         Imgproc.rectangle(YCbCr, midleRect, rectColor, 2);
+        Imgproc.rectangle(YCbCr, rightRect, rectColor, 2);
 
-        if(Math.round(valueleft * 100) > 10 && Math.round(valueleft * 100)> Math.round(valuemiddle * 100)){
-            telemetry.addLine("Position: left");
-        }else if(Math.round(valuemiddle * 100) > 10 && Math.round(valuemiddle * 100) > Math.round(valueleft * 100) ){
-            telemetry.addLine("Position: middle");
+        if(Math.round(valueright * 100) > 25 && Math.round(valueright * 100)> Math.round(valuemiddle * 100)){
+            location = Location.RIGHT;
+        }else if(Math.round(valuemiddle * 100) > 25 && Math.round(valuemiddle * 100) > Math.round(valueright * 100) ){
+            location = Location.CENTER;
         }else {
-            telemetry.addLine("Position: right");
+            location = Location.LEFT;
         }
-
+        telemetry.addData("Локация", location);
         telemetry.update();
 
         return (YCbCr);

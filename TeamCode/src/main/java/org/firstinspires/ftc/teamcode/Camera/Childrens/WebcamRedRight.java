@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Camera.Childrens.PipeLines.PipelineReDRigh
 import org.firstinspires.ftc.teamcode.Camera.Parents.Webcam;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 
-@Autonomous(name = "CamRedRight", group="Auto")
+@Autonomous(name = "RedRight", group="Auto")
 public class WebcamRedRight extends Webcam {
 
     @Override

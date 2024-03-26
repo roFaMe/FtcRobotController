@@ -21,7 +21,7 @@ public class TeleOP extends LinearOpMode{
     Timer time = new Timer();
     //Железо
     private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, arm, EnBar, leftSuck,rightSuck;
-    private Servo upDown, hook, plane;
+    private Servo upDown, hook_back,hook_front, plane;
 
     //Переменные моторов
 
@@ -29,10 +29,11 @@ public class TeleOP extends LinearOpMode{
     int telescopePos;
     private double last_moment_serv = 0.0, last_moment_switch = 0.0, last_moment_free = 0.0;
     private double moment_diff_serv, moment_diff_switch, moment_diff_free;
-    private double a, turn, timesFUp, timesFHo;
-    double ho = 0.8;//захват
+    private double a, turn, timesFUp, timesFHoB, timesFHoF;
+    double  ho_b = 0.2;//захват
+    double ho_f = 0.5;
     double pl = 0.45;//начальное положение
-    private double up = 0.4;
+    private double up = 0.0;
     private double speed = 0.65 ;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -50,14 +51,13 @@ public class TeleOP extends LinearOpMode{
         leftSuck = hardwareMap.get(DcMotor.class, "leftSuck");
         rightSuck = hardwareMap.get(DcMotor.class, "rightSuck");
 
-
-
-//        baraban = hardwareMap.get(DcMotor.class, "baraban");
+        baraban = hardwareMap.get(DcMotor.class, "EnX");
 //        arm = hardwareMap.get(DcMotor.class, "arm");
 //        EnBar = hardwareMap.get(DcMotor.class, "EnBar");
 
-//        upDown = hardwareMap.get(Servo.class, "upDown");
-//        hook = hardwareMap.get(Servo.class, "hook");
+        upDown = hardwareMap.get(Servo.class, "upDown");
+        hook_back = hardwareMap.get(Servo.class, "hook_back");
+        hook_front = hardwareMap.get(Servo.class, "hook_front");
 //        plane = hardwareMap.get(Servo.class, "plane");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -100,9 +100,6 @@ public class TeleOP extends LinearOpMode{
                     leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-
-
                     while (!isStopRequested() & opModeIsActive()) {
 
                         //ТЕЛЕЖКА
@@ -117,7 +114,6 @@ public class TeleOP extends LinearOpMode{
 
                         //Поворот
                         turn = -gamepad1.right_stick_x;
-
 
                         //Мощность моторов тележки
                         zm1 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y + turn) * a, -speed , speed );
@@ -139,63 +135,71 @@ public class TeleOP extends LinearOpMode{
                         if (zm4 > -0.05 && zm4 < 0.05) {
                             zm4 = 0;
                         }
-                        if (gamepad1.left_trigger > 0.05 ){
-                            leftSuck.setPower(1);
-                            rightSuck.setPower(-1);
+
+                        if (gamepad2.left_trigger > 0.05 ){
+                            leftSuck.setPower(0.5);
+                            rightSuck.setPower(-0.5);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
 
-                        if (gamepad1.right_trigger > 0.05 ){
-                            leftSuck.setPower(-1);
-                            rightSuck.setPower(1);
+                        if (gamepad2.right_trigger > 0.05 ){
+                            leftSuck.setPower(-0.5);
+                            rightSuck.setPower(0.5);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
 
                         //ТЕЛЕСКОП
 
-
-//        baraban.setPower(-gamepad2.left_stick_y);
-
-
-
+                        baraban.setPower(-gamepad2.left_stick_y);
 
                         //Серваки
 
-//                        if (gamepad2.a && timesFHo == 0 && moment_diff_serv > 200) {
-//                            ho = 0.5;
-//                            timesFHo = 1;
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-//
-//                        else if (gamepad2.a && timesFHo == 1 && moment_diff_serv > 200) {
-//                            ho = 0.8;
-//                            timesFHo = 0;
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-//
+                        if (gamepad2.a && timesFHoB == 0 && moment_diff_serv > 1000) {
+                            hook_back.setPosition(0.2);
+                            timesFHoB = 1;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+                        else if (gamepad2.a && timesFHoB == 1 && moment_diff_serv > 1000) {
+                            hook_back.setPosition(0.5);
+                            timesFHoB = 0;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+                        if (gamepad2.b && timesFHoF == 0 && moment_diff_serv > 500) {
+                            hook_front.setPosition(0.2);
+                            timesFHoF = 1;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+                        else if (gamepad2.b && timesFHoF == 1 && moment_diff_serv > 500) {
+                            hook_front.setPosition(0.5);
+                            timesFHoF = 0;
+                            last_moment_serv = runtime.milliseconds();
+                        }
 //                        if (gamepad2.y && timesFHo == 0 && moment_diff_serv > 200) {
 //                            ho = 0.65;
 //                            timesFHo = 1;
 //                            last_moment_serv = runtime.milliseconds();
 //                        }
 //
-//                        if (gamepad2.x && timesFUp == 0 && moment_diff_serv > 200) {
-//                            up = 0.4;
-//                            timesFUp = 1;
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-//
-//                        else if (gamepad2.x && timesFUp == 1 && moment_diff_serv > 200) {
-//                            up = 0.75;
-//                            timesFUp = 0;
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-//
-//
-//                        moment_diff_serv = runtime.milliseconds() - last_moment_serv;
-//                        moment_diff_switch = runtime.milliseconds() - last_moment_switch;
+                        if (gamepad2.x && timesFUp == 0 && moment_diff_serv > 200) {
+                            up = 0.3;
+                            timesFUp = 1;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+                        else if (gamepad2.x && timesFUp == 1 && moment_diff_serv > 200) {
+                            up = 0.75;
+                            timesFUp = 0;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+
+                        moment_diff_serv = runtime.milliseconds() - last_moment_serv;
+                        moment_diff_switch = runtime.milliseconds() - last_moment_switch;
 //
 //                        if(gamepad2.left_bumper){
 //                            arm.setPower(1);
@@ -240,8 +244,8 @@ public class TeleOP extends LinearOpMode{
             leftRear.setPower(zm3);//слева сзади
             rightRear.setPower(zm4);//справа сздади
 
-//            upDown.setPosition(up);
-//            hook.setPosition(ho);
+            upDown.setPosition(up);
+//            hook_front.setPosition(ho_f);
 //            plane.setPosition(pl);
 //
 //            telemetry.addData("Энкодер барабана", -EnBar.getCurrentPosition());
@@ -251,6 +255,7 @@ public class TeleOP extends LinearOpMode{
 //            telemetry.addData("Крючок", hook.getPosition());
 //            telemetry.addData("Самолёт", plane.getPosition());
             telemetry.addData("a", a);
+            telemetry.addData("up_pos", upDown.getPosition());
             telemetry.addData("Lf", leftFront.getPower());
             telemetry.addData("Lr", leftRear.getPower());
             telemetry.addData("Rf", rightFront.getPower());
