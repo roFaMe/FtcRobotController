@@ -63,6 +63,7 @@ public class Webcam extends LinearOpMode implements Direction {
         camOpen();
         bot.hook_back.setPosition(0.5);
         bot.hook_front.setPosition(0.0);
+        bot.upDown.setPosition(0.4);
         runtime.reset();
         waitForStart();
         camClose();
@@ -106,16 +107,13 @@ public class Webcam extends LinearOpMode implements Direction {
                sleep(500);
                 bot.hook_back.setPosition(0.0);
                 sleep(500);
-                bot.telescope(this, 150, 2.0);
+                bot.telescope(this, 900, 2.0);
                 bot.upDown.setPosition(0.6);
                 bot.initIMU(this);
-                bot.drive(this, 0,-1200, 2.5);
-                bot.turn(this, 180, 1.8);
+                bot.drive(this, 0,-1700, 2.5);
+                bot.turn(this, 160, 1.8);
                 bot.initIMU(this);
-                bot.turn(this,90, 1.8);
-                bot.initIMU(this);
-                bot.upDown.setPosition(1);
-                bot.drive(this, 0,500, 1.8);
+                bot.upDown.setPosition(1);;
                 sleep(500);
                 bot.hook_front.setPosition(0.3);
                 sleep(500);
@@ -124,28 +122,34 @@ public class Webcam extends LinearOpMode implements Direction {
         }
         else if(pipe.location == Pipeline.Location.CENTER){
             if(whatsAuto.equals("redLeft")){
-                bot.drive(this, 0,1200, 2.5);
-                bot.turn(this, 45, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,-100, 2.5);
+                bot.drive(this, 0,1300, 1.8);
+                bot.drive(this, 1500,0, 1.2);
                 bot.telescope(this, 500, 2.0);
-                bot.upDown.setPosition(0.87);
-                sleep(500);
+                sleep(700);
+                bot.upDown.setPosition(0.0);
+                sleep(700);
                 bot.telescope(this, -300, 2.0);
-                sleep(500);
+                sleep(700);
                 bot.hook_back.setPosition(0.0);
+                sleep(700);
+                bot.telescope(this, 300, 2.0);
                 sleep(500);
-                bot.telescope(this, 150, 2.0);
-                bot.upDown.setPosition(0.6);
-                bot.initIMU(this);
-                bot.turn(this, 45, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,-500, 1.8);
-                bot.drive(this, -2000,0, 1.8);
-                bot.drive(this, 0,3000, 1.8);
-                bot.drive(this, 2000,0, 1.8);
-                bot.upDown.setPosition(1);
+                bot.upDown.setPosition(0.4);
                 sleep(500);
+                bot.telescope(this, -500, 2.0);
+                bot.initIMU(this);
+                bot.drive(this, 0,-200, 1.2);
+                bot.drive(this, 500,0, 1.2);
+                bot.turn(this, 90, 1.8);
+                bot.initIMU(this);
+                bot.drive(this, 0,-1200, 2.5);
+                bot.drive(this, -6000,0, 2.5);
+                bot.drive(this, 0,5000, 2.5);
+                sleep(500);
+                bot.telescope(this, 600, 2.0);
+                sleep(500);
+                bot.upDown.setPosition(0.0);
+                bot.drive(this, 2000,0, 2.5);
                 bot.hook_front.setPosition(0.3);
                 sleep(500);
             }
@@ -153,22 +157,23 @@ public class Webcam extends LinearOpMode implements Direction {
                 bot.drive(this, 0,1200, 2.5);
                 bot.turn(this, 45, 1.8);
                 bot.initIMU(this);
-                bot.drive(this, 0,-100, 2.5);
                 bot.telescope(this, 500, 2.0);
-                bot.upDown.setPosition(0.87);
+                sleep(500);
+                bot.upDown.setPosition(0.8);
                 sleep(500);
                 bot.telescope(this, -300, 2.0);
                 sleep(500);
                 bot.hook_back.setPosition(0.0);
                 sleep(500);
-                bot.telescope(this, 150, 2.0);
+                bot.telescope(this, 600, 2.0);
+                sleep(500);
                 bot.upDown.setPosition(0.6);
                 bot.initIMU(this);
-                bot.turn(this, 45, 1.8);
+                bot.turn(this, 68, 1.8);
                 bot.initIMU(this);
-                bot.drive(this, 0,1500, 2.5);
                 bot.upDown.setPosition(1);
                 sleep(500);
+                bot.drive(this, 0,1800, 2.5);
                 bot.hook_front.setPosition(0.3);
                 sleep(500);
             }
@@ -176,6 +181,30 @@ public class Webcam extends LinearOpMode implements Direction {
         else{
             if(whatsAuto.equals("redLeft")){
 
+            }
+            else if (whatsAuto.equals("redRight")) {
+                bot.drive(this, 0,1200, 2.5);
+                bot.turn(this, 90, 1.8);
+                bot.initIMU(this);
+                bot.telescope(this, 500, 2.0);
+                sleep(500);
+                bot.upDown.setPosition(0.8);
+                sleep(500);
+                bot.telescope(this, -300, 2.0);
+                sleep(500);
+                bot.hook_back.setPosition(0.0);
+                sleep(500);
+                bot.telescope(this, 600, 2.0);
+                sleep(500);
+                bot.upDown.setPosition(0.6);
+                bot.drive(this, 2000,0, 2.5);
+                bot.drive(this, 0,1500, 2.5);
+                bot.drive(this, -1000,0, 2.5);;
+                bot.upDown.setPosition(1);
+                sleep(500);
+                bot.drive(this, 0,500, 2.5);
+                bot.hook_front.setPosition(0.3);
+                sleep(500);
             }
         }
 

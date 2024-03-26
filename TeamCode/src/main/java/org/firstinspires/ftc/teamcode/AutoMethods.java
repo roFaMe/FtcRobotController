@@ -184,7 +184,7 @@ public void turn ( OpMode op,double degrees, double timeout) {
     double v1 = Range.clip((spd + vyr_ug ) ,-max_speed,max_speed);
     double v2 = Range.clip((-spd - vyr_ug )  ,-max_speed,max_speed);
     double ticks_per_degrees_enY = 1.56;
-    double rasst = degrees * ticks_per_degrees_enY * 360/degrees * (1.53);
+    double rasst = (ticks_per_degrees_enY * 360 * (1.53))/(90/degrees);
 
     runtime.reset();
 
@@ -280,6 +280,7 @@ public void drive( OpMode op,double X, double Y, double timeout) {
     runtime.reset();
 
     while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout) {
+        max_speed = 0.8;
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         enX = EnX.getCurrentPosition();
         enLY = ((-leftFront.getCurrentPosition() - leftRear.getCurrentPosition()) / 2.0);
@@ -287,15 +288,14 @@ public void drive( OpMode op,double X, double Y, double timeout) {
         enY = (enRY + enLY) / 2;
 
         if (X != 0 && Y == 0) {
-            vyr = -angles.firstAngle / 40.0;
+            vyr = -angles.firstAngle / 30.0;
         } else {
-            vyr = -angles.firstAngle / 70.0;
+            vyr = -angles.firstAngle / 60.0;
         }
-        spdX = enX / X;
-        spdY = Math.abs(enY) / Y;
+        spdX = (Math.abs(enX) / X) / 2.0;
+        spdY = (Math.abs(enY) / Y)/ 1.22;
 
 
-        if (Math.abs((spdY - max_speed) + vyr) > 0.087) {
             if (Y != 0 && X == 0) {
                 if(Y > 0 ){
                     leftFront.setPower(Range.clip(((spdY - max_speed) + vyr), -max_speed, max_speed));
@@ -308,30 +308,27 @@ public void drive( OpMode op,double X, double Y, double timeout) {
                     leftRear.setPower(Range.clip(((spdY + max_speed) + vyr), -max_speed, max_speed));
                     rightRear.setPower(Range.clip(((spdY + max_speed) - vyr), -max_speed, max_speed));
                 }
-
-            } else if (X != 0 && Y == 0) {
+            }
+           else if (X != 0 && Y == 0) {
+               max_speed = 0.5;
                 if(X > 0){
                     leftFront.setPower(Range.clip(((spdX - max_speed) + vyr), -max_speed, max_speed));
                     rightFront.setPower(Range.clip(((-spdX + max_speed) - vyr), -max_speed, max_speed));
                     leftRear.setPower(Range.clip(((-spdX + max_speed) + vyr), -max_speed, max_speed));
-                    rightRear.setPower(Range.clip(((spdX - max_speed - vyr)), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((spdX - max_speed) - vyr), -max_speed, max_speed));
                 }else{
-                    leftFront.setPower(Range.clip(((-spdX - max_speed) + vyr), -max_speed, max_speed));
-                    rightFront.setPower(Range.clip(((spdX + max_speed) - vyr), -max_speed, max_speed));
-                    leftRear.setPower(Range.clip(((spdX + max_speed) + vyr), -max_speed, max_speed));
-                    rightRear.setPower(Range.clip(((-spdX - max_speed - vyr)), -max_speed, max_speed));
+                    leftFront.setPower(Range.clip(((spdX + max_speed) + vyr), -max_speed, max_speed));
+                    rightFront.setPower(Range.clip(((-spdX - max_speed) - vyr), -max_speed, max_speed));
+                    leftRear.setPower(Range.clip(((-spdX - max_speed) + vyr), -max_speed, max_speed));
+                    rightRear.setPower(Range.clip(((spdX + max_speed - vyr)), -max_speed, max_speed));
                 }
 
             } else {
-                leftFront.setPower(Range.clip(((spdY - max_speed) + (spdX - max_speed) + vyr), -max_speed, max_speed));
-                rightFront.setPower(Range.clip(((-spdY + max_speed) + (-spdX + max_speed) - vyr), -max_speed, max_speed));
-                leftRear.setPower(Range.clip(((-spdY + max_speed) + (-spdX + max_speed) + vyr), -max_speed, max_speed));
-                rightRear.setPower(Range.clip(((spdY - max_speed) + (spdX - max_speed) - vyr), -max_speed, max_speed));
+                leftFront.setPower(Range.clip(((spdX - (X/Math.abs(X)) + (spdY + (Y/Math.abs(Y))) + vyr)), -max_speed, max_speed));
+                rightFront.setPower(Range.clip(((-spdX + (X/Math.abs(X)) + (spdY + (Y/Math.abs(Y))) - vyr)), -max_speed, max_speed));
+                leftRear.setPower(Range.clip(((-spdX + (X/Math.abs(X)) + (spdY + (Y/Math.abs(Y))) + vyr)), -max_speed, max_speed));
+                rightRear.setPower(Range.clip(((spdX - (X/Math.abs(X)) + (spdY + (Y/Math.abs(Y))) - vyr)), -max_speed, max_speed));
             }
-        }else{
-            break;
-        }
-
 
         op.telemetry.addData("angles.firstAngle", -angles.firstAngle);
         op.telemetry.addData("vyr", vyr);
@@ -363,16 +360,6 @@ public void drive( OpMode op,double X, double Y, double timeout) {
     leftRear.setPower(0);
     rightRear.setPower(0);
 }
-
-public  void  left (OpMode op, double timeout){
-        runtime.reset();
-    while(!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout ){
-        leftFront.setPower(1);
-        rightFront.setPower(-1);
-        leftRear.setPower(-1);
-        rightRear.setPower(1);
-    }
-}
     public void telescope (OpMode op, int number, double timeout){
         baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         baraban.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -382,10 +369,10 @@ public  void  left (OpMode op, double timeout){
 
         while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number ){
             if (number - baraban.getCurrentPosition() > 10) {
-                baraban.setPower(0.75);
+                baraban.setPower(0.65);
             }
             else if (number - baraban.getCurrentPosition() < -10) {
-                baraban.setPower(-0.5);
+                baraban.setPower(-0.3);
             }
             else {
                 baraban.setPower(0.1);

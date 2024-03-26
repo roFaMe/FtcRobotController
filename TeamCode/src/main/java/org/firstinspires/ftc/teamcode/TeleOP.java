@@ -51,7 +51,7 @@ public class TeleOP extends LinearOpMode{
         leftSuck = hardwareMap.get(DcMotor.class, "leftSuck");
         rightSuck = hardwareMap.get(DcMotor.class, "rightSuck");
 
-        baraban = hardwareMap.get(DcMotor.class, "EnX");
+        baraban = hardwareMap.get(DcMotor.class, "baraban");
 //        arm = hardwareMap.get(DcMotor.class, "arm");
 //        EnBar = hardwareMap.get(DcMotor.class, "EnBar");
 
@@ -137,15 +137,15 @@ public class TeleOP extends LinearOpMode{
                         }
 
                         if (gamepad2.left_trigger > 0.05 ){
-                            leftSuck.setPower(0.5);
-                            rightSuck.setPower(-0.5);
+                            leftSuck.setPower(1);
+                            rightSuck.setPower(-1);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
 
                         if (gamepad2.right_trigger > 0.05 ){
-                            leftSuck.setPower(-0.5);
-                            rightSuck.setPower(0.5);
+                            leftSuck.setPower(-1);
+                            rightSuck.setPower(1);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
@@ -157,19 +157,19 @@ public class TeleOP extends LinearOpMode{
                         //Серваки
 
                         if (gamepad2.a && timesFHoB == 0 && moment_diff_serv > 1000) {
-                            hook_back.setPosition(0.2);
+                            hook_back.setPosition(0.5);
                             timesFHoB = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
                         else if (gamepad2.a && timesFHoB == 1 && moment_diff_serv > 1000) {
-                            hook_back.setPosition(0.5);
+                            hook_back.setPosition(0.0);
                             timesFHoB = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
 
                         if (gamepad2.b && timesFHoF == 0 && moment_diff_serv > 500) {
-                            hook_front.setPosition(0.2);
+                            hook_front.setPosition(0.6);
                             timesFHoF = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
@@ -179,24 +179,18 @@ public class TeleOP extends LinearOpMode{
                             timesFHoF = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
-//                        if (gamepad2.y && timesFHo == 0 && moment_diff_serv > 200) {
-//                            ho = 0.65;
-//                            timesFHo = 1;
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-//
+
                         if (gamepad2.x && timesFUp == 0 && moment_diff_serv > 200) {
-                            up = 0.3;
+                            upDown.setPosition(0.0);
                             timesFUp = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
                         else if (gamepad2.x && timesFUp == 1 && moment_diff_serv > 200) {
-                            up = 0.75;
+                            upDown.setPosition(0.44);
                             timesFUp = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
-
 
                         moment_diff_serv = runtime.milliseconds() - last_moment_serv;
                         moment_diff_switch = runtime.milliseconds() - last_moment_switch;
@@ -244,7 +238,7 @@ public class TeleOP extends LinearOpMode{
             leftRear.setPower(zm3);//слева сзади
             rightRear.setPower(zm4);//справа сздади
 
-            upDown.setPosition(up);
+//            upDown.setPosition(up);
 //            hook_front.setPosition(ho_f);
 //            plane.setPosition(pl);
 //
