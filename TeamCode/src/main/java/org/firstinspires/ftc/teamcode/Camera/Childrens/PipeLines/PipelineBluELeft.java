@@ -27,7 +27,7 @@ public class PipelineBluELeft extends Pipeline {
 
             Core.extractChannel(YCbCr, YCbCr, 1);//оставляем только СИНИЙ цвет по политре YCbCr
 
-            Imgproc.threshold(YCbCr, YCbCr, 120, 255, Imgproc.THRESH_BINARY_INV);
+            Imgproc.threshold(YCbCr, YCbCr, 100, 255, Imgproc.THRESH_BINARY_INV);
 
             midleCrop = YCbCr.submat(midleRect);
             rightCrop = YCbCr.submat(rightRect);

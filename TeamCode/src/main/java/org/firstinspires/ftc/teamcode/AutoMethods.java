@@ -58,7 +58,7 @@ public class AutoMethods extends LinearOpMode implements Direction{
         parameters.loggingTag = "IMU";
         imu = op.hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-
+//        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
 
     //Инициализируем железо
@@ -140,7 +140,7 @@ public class AutoMethods extends LinearOpMode implements Direction{
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
-public void turn ( OpMode op,double degrees, double timeout) {
+public void turn ( OpMode op,double degrees, double timeout, int a) {
     this.op = op;
 
     leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -177,47 +177,48 @@ public void turn ( OpMode op,double degrees, double timeout) {
     double vyr = enRY - enLY;
     double enY = (enRY - enLY)/2;
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    double max_speed = 1;
+    double max_speed = 0.8;
     double ost_angles =  degrees - Math.abs(angles.firstAngle);
     double vyr_ug =  (-angles.firstAngle / degrees);
     double spd = countin_degrees - degrees;
     double v1 = Range.clip((spd + vyr_ug ) ,-max_speed,max_speed);
     double v2 = Range.clip((-spd - vyr_ug )  ,-max_speed,max_speed);
     double ticks_per_degrees_enY = 1.56;
-    double rasst = (ticks_per_degrees_enY * 360 * (1.53))/(90/degrees);
-
+    double rasst = (ticks_per_degrees_enY * 360 * (1.53))/(90/Math.abs(degrees));
+    double angle = -angles.firstAngle;
+    double now_angle = 0;
     runtime.reset();
 
     while (!isStopRequested() && !opModeIsActive()  && runtime.seconds() < timeout  ) {
-
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        if(a == 1) {
+            now_angle = -angles.firstAngle + angle;
+        }else{now_angle = -angles.firstAngle - angle;}
+
 
         enLY = -(leftFront.getCurrentPosition() + leftRear.getCurrentPosition())/2.0;
         enRY = -(rightFront.getCurrentPosition() + rightRear.getCurrentPosition())/2.0;
         enX = -EnX.getCurrentPosition();
         enY = -(enRY-enLY)/2.0;
 
-        spd = enY/rasst;
-        vyr = -angles.firstAngle/950.0;
-
+        vyr = (now_angle / 1100);
+        spd = (enY/rasst) / 1.22;
+        rightRear.setPower(Range.clip((countin_degrees - degrees), -max_speed, max_speed));
         if(degrees < 0){
-            if(Math.abs(spd - max_speed + vyr ) > 0.087){
-                leftFront.setPower(Range.clip((spd + max_speed + vyr ) ,-max_speed ,max_speed ));
-                leftRear.setPower(Range.clip((spd + max_speed + vyr) ,-max_speed,max_speed ));
-                rightFront.setPower(Range.clip(( -spd - max_speed - vyr) ,-max_speed,max_speed));
-                rightRear.setPower(Range.clip(( -spd - max_speed - vyr) ,-max_speed,max_speed));
-            }else{
-                break;}
+            leftFront.setPower(Range.clip((spd + max_speed + vyr), -max_speed, max_speed));
+            leftRear.setPower(Range.clip((spd + max_speed + vyr), -max_speed, max_speed));
+            rightFront.setPower(Range.clip((-spd - max_speed - vyr), -max_speed, max_speed));
+            rightRear.setPower(Range.clip((-spd - max_speed - vyr), -max_speed, max_speed));
         }else{
-            if(Math.abs(spd - max_speed + vyr ) > 0.087){
                 leftFront.setPower(Range.clip((spd - max_speed + vyr ) ,-max_speed ,max_speed ));
-                leftRear.setPower(Range.clip((spd - max_speed + vyr) ,-max_speed,max_speed ));
+                leftRear.setPower(Range.clip((spd - max_speed + vyr ) ,-max_speed,max_speed ));
                 rightFront.setPower(Range.clip(( -spd + max_speed - vyr) ,-max_speed,max_speed));
                 rightRear.setPower(Range.clip(( -spd + max_speed - vyr) ,-max_speed,max_speed));
-            }else{
-                break;}
         }
-
+        op.telemetry.addData("ost_angles", ost_angles);
+        op.telemetry.addData("now_angle", now_angle);
+        op.telemetry.addData("vyr", vyr);
+        op.telemetry.addData("razn_roun", 1/raznost_rounds);
         op.telemetry.addData("spd", spd);
         op.telemetry.addData("rasst", rasst);
 
@@ -242,11 +243,20 @@ public void turn ( OpMode op,double degrees, double timeout) {
 
         op.telemetry.update();
     }
-
-    leftFront.setPower(0.0);
-    rightFront.setPower(0.0);
-    leftRear.setPower(0.0);
-    rightRear.setPower(0.0);
+    leftRear.setPower(0);
+    leftFront.setPower(0);
+    rightRear.setPower(0);
+    rightFront.setPower(0);
+    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+    parameters.loggingEnabled = true;
+    parameters.loggingTag = "IMU";
+    imu = op.hardwareMap.get(BNO055IMU.class, "imu");
+    imu.initialize(parameters);
+    sleep(500);
+    leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 }
 
 public void drive( OpMode op,double X, double Y, double timeout) {
@@ -276,25 +286,26 @@ public void drive( OpMode op,double X, double Y, double timeout) {
     double countin_degrees = (enLY - enRY) / 4.0;
 
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    double angle = -angles.firstAngle;
     double vyr = 0;
     runtime.reset();
 
     while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout) {
         max_speed = 0.8;
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double now_angle = -angles.firstAngle - angle;
         enX = EnX.getCurrentPosition();
         enLY = ((-leftFront.getCurrentPosition() - leftRear.getCurrentPosition()) / 2.0);
         enRY = ((-rightFront.getCurrentPosition() - rightRear.getCurrentPosition()) / 2.0);
         enY = (enRY + enLY) / 2;
 
         if (X != 0 && Y == 0) {
-            vyr = -angles.firstAngle / 30.0;
+            vyr = now_angle / 30.0;
         } else {
-            vyr = -angles.firstAngle / 60.0;
+            vyr = now_angle / 50.0;
         }
-        spdX = (Math.abs(enX) / X) / 2.0;
+        spdX = (Math.abs(enX) / X) / 1.3;
         spdY = (Math.abs(enY) / Y)/ 1.22;
-
 
             if (Y != 0 && X == 0) {
                 if(Y > 0 ){
@@ -310,7 +321,7 @@ public void drive( OpMode op,double X, double Y, double timeout) {
                 }
             }
            else if (X != 0 && Y == 0) {
-               max_speed = 0.5;
+               max_speed = 0.7;
                 if(X > 0){
                     leftFront.setPower(Range.clip(((spdX - max_speed) + vyr), -max_speed, max_speed));
                     rightFront.setPower(Range.clip(((-spdX + max_speed) - vyr), -max_speed, max_speed));
@@ -355,10 +366,10 @@ public void drive( OpMode op,double X, double Y, double timeout) {
 
     }
 
-    leftFront.setPower(0);
-    rightFront.setPower(0);
-    leftRear.setPower(0);
-    rightRear.setPower(0);
+    leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 }
     public void telescope (OpMode op, int number, double timeout){
         baraban.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -367,7 +378,7 @@ public void drive( OpMode op,double X, double Y, double timeout) {
         this.op = op;
         runtime.reset();
 
-        while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number ){
+        while(!opModeIsActive() && !isStopRequested() && baraban.getCurrentPosition() != number && runtime.seconds() < timeout ){
             if (number - baraban.getCurrentPosition() > 10) {
                 baraban.setPower(0.65);
             }

@@ -40,6 +40,7 @@ public class Webcam extends LinearOpMode implements Direction {
     double runningtime  = 0;
     public String whatsAuto;
 
+
 //    AprilTagProcessor tagProcessor = new AprilTagProcessor.Builder()
 //            .setDrawAxes(true)
 //            .setDrawCubeProjection(true)
@@ -67,148 +68,202 @@ public class Webcam extends LinearOpMode implements Direction {
         runtime.reset();
         waitForStart();
         camClose();
-        if(pipe.location == Pipeline.Location.LEFT){
-            if(whatsAuto.equals("redLeft")){
-                bot.drive(this, 0,1200, 2.5);
-                bot.turn(this, -90, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,-100, 2.5);
-                bot.telescope(this, 500, 2.0);
-                bot.upDown.setPosition(0.87);
-                sleep(500);
-                bot.telescope(this, -300, 2.0);
-                sleep(500);
-                bot.hook_back.setPosition(0.0);
-                sleep(500);
-                bot.telescope(this, 150, 2.0);
-                bot.upDown.setPosition(0.6);
-                bot.initIMU(this);
-                bot.drive(this, 2000,0, 1.8);
-                bot.turn(this, 180, 1.8);
-                bot.initIMU(this);
-                bot.turn(this,90, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,3000, 1.8);
-                bot.drive(this, 1000,0, 1.8);
-                bot.upDown.setPosition(1);
-                sleep(500);
-                bot.hook_front.setPosition(0.3);
-                sleep(500);
-
-            } else if (whatsAuto.equals("redRight")) {
-                bot.drive(this, 0,1200, 2.5);
-                bot.turn(this, -90, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,-100, 2.5);
-                bot.telescope(this, 500, 2.0);
-                bot.upDown.setPosition(0.87);
-                sleep(500);
-                bot.telescope(this, -300, 2.0);
-               sleep(500);
-                bot.hook_back.setPosition(0.0);
-                sleep(500);
-                bot.telescope(this, 900, 2.0);
-                bot.upDown.setPosition(0.6);
-                bot.initIMU(this);
-                bot.drive(this, 0,-1700, 2.5);
-                bot.turn(this, 160, 1.8);
-                bot.initIMU(this);
-                bot.upDown.setPosition(1);;
-                sleep(500);
-                bot.hook_front.setPosition(0.3);
-                sleep(500);
-
+            if (pipe.location == Pipeline.Location.LEFT) {
+                if (whatsAuto.equals("blueLeft")) {
+                    bot.drive(this, 0, 1450, 1.5);
+                    bot.drive(this, 1000, 1450, 1.5);
+                    bot.turn(this, -92, 1, 1);
+                    bot.telescope(this, 500, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.1);
+                    sleep(500);
+                    bot.telescope(this, -300, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, -3000, 0, 1.5);
+                    bot.drive(this, 0, 2750, 1.5);
+                    bot.drive(this, 1000, 0, 1.5);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.telescope(this, 100, 0.5);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, -5000, 0, 2);
+                }
+                if (whatsAuto.equals("redRight")) {
+                    bot.drive(this, 0, 1450, 1.5);
+                    bot.turn(this, -96, 1, 1);
+                    bot.telescope(this, 50, 0.5);
+                    bot.drive(this, 0, -100, 1.5);
+                    bot.telescope(this, 500, 2);
+                    sleep(500);
+                    bot.upDown.setPosition(0.05);
+                    sleep(500);
+                    bot.telescope(this, -420, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.05);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.5);
+                    sleep(500);
+                    bot.drive(this, 0, -1525, 1.5);
+                    bot.turn(this, 90, 1, 1);
+                    bot.turn(this, 90, 1, 1);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, 0, 450, 1.5);
+                    bot.drive(this, -1000, 0, 2.5);
+                    sleep(500);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, 14000, 0, 2);
+                    bot.drive(this, 0, 300, 2);
+                }
+                if(whatsAuto.equals("redLeft")) {
+                    bot.drive(this, 0, 2500, 1.5);
+                    bot.turn(this, 90, 1, 1);
+                    bot.drive(this, 0, 4000, 2.5);
+                    bot.drive(this, 1000, 0, 1.5);
+                }
+            }
+            if (pipe.location == Pipeline.Location.CENTER) {
+                if (whatsAuto.equals("blueLeft")) {
+                    bot.drive(this, 0, 1375, 1.5);
+                    bot.drive(this, 2200, 0, 1.5);
+                    bot.telescope(this, 500, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.05);
+                    sleep(500);
+                    bot.telescope(this, -300, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.5);
+                    sleep(500);
+                    bot.turn(this, -96, 1, 1);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, 0, 2450, 1.5);
+                    sleep(500);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.telescope(this, 100, 0.5);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, -16000, 0, 2);
+                }
+                if (whatsAuto.equals("redRight")) {
+                    bot.drive(this, 0, 1350, 1.5);
+                    bot.drive(this, -1900, 0, 1.5);
+                    bot.telescope(this, 500, 2.0);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, -420, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.5);
+                    sleep(500);
+                    bot.turn(this, 95, 1, 1);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, 0, 3300, 1.5);
+                    bot.drive(this, 1000, 0, 1.5);
+                    bot.telescope(this, 100, 0.5);
+                    sleep(1000);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, 12000, 0, 2);
+                }
+                if(whatsAuto.equals("redLeft")) {
+                    bot.drive(this, 0, 1300, 1.5);
+                    bot.drive(this, -5000, 0, 1.5);
+                    bot.drive(this, 0, 1200, 1.5);
+                    bot.turn(this, -90, 1,1);
+                    bot.drive(this, 0, 4500, 2.5);
+                    bot.drive(this, 1000, 0, 1.5);
+                }
+            }
+            if (pipe.location == Pipeline.Location.RIGHT) {
+                if (whatsAuto.equals("blueLeft")) {
+                    bot.drive(this, 0, 1375, 1.5);
+                    bot.turn(this, 95, 1, 1);
+                    bot.telescope(this, 500, 2);
+                    sleep(500);
+                    bot.upDown.setPosition(0.05);
+                    sleep(500);
+                    bot.telescope(this, -300, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.5);
+                    sleep(500);
+                    bot.drive(this, 0, -1275, 1.5);
+                    bot.turn(this, -90, 1, 1);
+                    bot.turn(this, -90, 1, 1);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, 0, 425, 1.5);
+                    bot.drive(this, 4000, 0, 2.5);
+                    bot.telescope(this, 200, 0.5);
+                    sleep(500);
+                    bot.telescope(this, 100, 0.5);
+                    sleep(500);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.telescope(this, 300, 0.5);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, -12000, 0, 2);
+                }
+                if (whatsAuto.equals("redRight")) {
+                    bot.drive(this, 0, 1350, 1.5);
+                    bot.turn(this, 96, 0.8, 1);
+                    bot.telescope(this, 500, 2.0);
+                    sleep(500);
+                    bot.upDown.setPosition(0.05);
+                    sleep(500);
+                    bot.telescope(this, -420, 0.5);
+                    sleep(500);
+                    bot.hook_back.setPosition(0.0);
+                    sleep(500);
+                    bot.telescope(this, 300, 0.5);
+                    sleep(500);
+                    bot.upDown.setPosition(0.0);
+                    sleep(500);
+                    bot.drive(this, 6000, 0, 2.5);
+                    bot.drive(this, 0, 2800, 1.5);
+                    bot.telescope(this, 100, 0.5);
+                    sleep(500);
+                    bot.hook_front.setPosition(0.3);
+                    sleep(1000);
+                    bot.upDown.setPosition(0.5);
+                    bot.drive(this, 8000, 0, 2);
+                }
+                if(whatsAuto.equals("redLeft")) {
+                    bot.drive(this, 0, 2500, 1.5);
+                    bot.turn(this, 90, 1, 1);
+                    bot.drive(this, 0, 4000, 2.5);
+                    bot.drive(this, 1000, 0, 1.5);
+                }
             }
         }
-        else if(pipe.location == Pipeline.Location.CENTER){
-            if(whatsAuto.equals("redLeft")){
-                bot.drive(this, 0,1300, 1.8);
-                bot.drive(this, 1500,0, 1.2);
-                bot.telescope(this, 500, 2.0);
-                sleep(700);
-                bot.upDown.setPosition(0.0);
-                sleep(700);
-                bot.telescope(this, -300, 2.0);
-                sleep(700);
-                bot.hook_back.setPosition(0.0);
-                sleep(700);
-                bot.telescope(this, 300, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.4);
-                sleep(500);
-                bot.telescope(this, -500, 2.0);
-                bot.initIMU(this);
-                bot.drive(this, 0,-200, 1.2);
-                bot.drive(this, 500,0, 1.2);
-                bot.turn(this, 90, 1.8);
-                bot.initIMU(this);
-                bot.drive(this, 0,-1200, 2.5);
-                bot.drive(this, -6000,0, 2.5);
-                bot.drive(this, 0,5000, 2.5);
-                sleep(500);
-                bot.telescope(this, 600, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.0);
-                bot.drive(this, 2000,0, 2.5);
-                bot.hook_front.setPosition(0.3);
-                sleep(500);
-            }
-            else if (whatsAuto.equals("redRight")) {
-                bot.drive(this, 0,1200, 2.5);
-                bot.turn(this, 45, 1.8);
-                bot.initIMU(this);
-                bot.telescope(this, 500, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.8);
-                sleep(500);
-                bot.telescope(this, -300, 2.0);
-                sleep(500);
-                bot.hook_back.setPosition(0.0);
-                sleep(500);
-                bot.telescope(this, 600, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.6);
-                bot.initIMU(this);
-                bot.turn(this, 68, 1.8);
-                bot.initIMU(this);
-                bot.upDown.setPosition(1);
-                sleep(500);
-                bot.drive(this, 0,1800, 2.5);
-                bot.hook_front.setPosition(0.3);
-                sleep(500);
-            }
-        }
-        else{
-            if(whatsAuto.equals("redLeft")){
-
-            }
-            else if (whatsAuto.equals("redRight")) {
-                bot.drive(this, 0,1200, 2.5);
-                bot.turn(this, 90, 1.8);
-                bot.initIMU(this);
-                bot.telescope(this, 500, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.8);
-                sleep(500);
-                bot.telescope(this, -300, 2.0);
-                sleep(500);
-                bot.hook_back.setPosition(0.0);
-                sleep(500);
-                bot.telescope(this, 600, 2.0);
-                sleep(500);
-                bot.upDown.setPosition(0.6);
-                bot.drive(this, 2000,0, 2.5);
-                bot.drive(this, 0,1500, 2.5);
-                bot.drive(this, -1000,0, 2.5);;
-                bot.upDown.setPosition(1);
-                sleep(500);
-                bot.drive(this, 0,500, 2.5);
-                bot.hook_front.setPosition(0.3);
-                sleep(500);
-            }
-        }
-
-    }
     public void initCam(Telemetry telemetry, OpMode op){
 
     }

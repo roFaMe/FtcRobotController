@@ -20,7 +20,7 @@ public class TeleOP extends LinearOpMode{
     //Таймер
     Timer time = new Timer();
     //Железо
-    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban, arm, EnBar, leftSuck,rightSuck;
+    private DcMotor leftRear, rightRear, rightFront, leftFront, baraban,  leftSuck,rightSuck;
     private Servo upDown, hook_back,hook_front, plane;
 
     //Переменные моторов
@@ -30,9 +30,6 @@ public class TeleOP extends LinearOpMode{
     private double last_moment_serv = 0.0, last_moment_switch = 0.0, last_moment_free = 0.0;
     private double moment_diff_serv, moment_diff_switch, moment_diff_free;
     private double a, turn, timesFUp, timesFHoB, timesFHoF;
-    double  ho_b = 0.2;//захват
-    double ho_f = 0.5;
-    double pl = 0.45;//начальное положение
     private double up = 0.0;
     private double speed = 0.65 ;
 
@@ -58,7 +55,7 @@ public class TeleOP extends LinearOpMode{
         upDown = hardwareMap.get(Servo.class, "upDown");
         hook_back = hardwareMap.get(Servo.class, "hook_back");
         hook_front = hardwareMap.get(Servo.class, "hook_front");
-//        plane = hardwareMap.get(Servo.class, "plane");
+        plane = hardwareMap.get(Servo.class, "plane");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -137,44 +134,45 @@ public class TeleOP extends LinearOpMode{
                         }
 
                         if (gamepad2.left_trigger > 0.05 ){
-                            leftSuck.setPower(1);
-                            rightSuck.setPower(-1);
+                            leftSuck.setPower(0.95);
+                            rightSuck.setPower(-0.95);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
 
                         if (gamepad2.right_trigger > 0.05 ){
-                            leftSuck.setPower(-1);
-                            rightSuck.setPower(1);
+                            leftSuck.setPower(-0.95);
+                            rightSuck.setPower(0.95);
 
                         }else{leftSuck.setPower(0);
                             rightSuck.setPower(0);}
 
                         //ТЕЛЕСКОП
-
-                        baraban.setPower(-gamepad2.left_stick_y);
+                        if(-gamepad2.left_stick_y == 0  ){
+                            baraban.setPower(0.1);
+                        }else{baraban.setPower(-gamepad2.left_stick_y);}
 
                         //Серваки
 
-                        if (gamepad2.a && timesFHoB == 0 && moment_diff_serv > 1000) {
+                        if (gamepad2.a && timesFHoB == 0 && moment_diff_serv > 200) {
                             hook_back.setPosition(0.5);
                             timesFHoB = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
-                        else if (gamepad2.a && timesFHoB == 1 && moment_diff_serv > 1000) {
+                        else if (gamepad2.a && timesFHoB == 1 && moment_diff_serv > 200) {
                             hook_back.setPosition(0.0);
                             timesFHoB = 0;
                             last_moment_serv = runtime.milliseconds();
                         }
 
-                        if (gamepad2.b && timesFHoF == 0 && moment_diff_serv > 500) {
-                            hook_front.setPosition(0.6);
+                        if (gamepad2.b && timesFHoF == 0 && moment_diff_serv > 200) {
+                            hook_front.setPosition(0.0);
                             timesFHoF = 1;
                             last_moment_serv = runtime.milliseconds();
                         }
 
-                        else if (gamepad2.b && timesFHoF == 1 && moment_diff_serv > 500) {
+                        else if (gamepad2.b && timesFHoF == 1 && moment_diff_serv > 200) {
                             hook_front.setPosition(0.5);
                             timesFHoF = 0;
                             last_moment_serv = runtime.milliseconds();
@@ -189,6 +187,11 @@ public class TeleOP extends LinearOpMode{
                         else if (gamepad2.x && timesFUp == 1 && moment_diff_serv > 200) {
                             upDown.setPosition(0.44);
                             timesFUp = 0;
+                            last_moment_serv = runtime.milliseconds();
+                        }
+
+                        if (gamepad2.y && moment_diff_serv > 200) {
+                            plane.setPosition(0.6);
                             last_moment_serv = runtime.milliseconds();
                         }
 

@@ -11,8 +11,7 @@ public class Test extends AutoMethods  implements Direction{
         bot.initC(this);
         bot.initIMU(this);
         waitForStart();
-
-        bot.drive(this, 0, 2500, 30);
+//        bot.turn(this, 90, 1.5);
 //        bot.drive(this, 2500, 0, 2);
 //        sleep(600);
 //        bot.drive(this, 4500, 0, 50);
